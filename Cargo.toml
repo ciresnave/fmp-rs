@@ -10,7 +10,7 @@
     name          = "fmp-rs"
     readme        = "README.md"
     repository    = "https://github.com/ciresnave/fmp-rs"
-    version       = "0.1.0"
+    version       = "0.1.1"
 
     [package.metadata.docs.rs]
         all-features = true
