@@ -1,1 +1,56 @@
-/target
+# Rust compilation artifacts
+/target/
+
+# Profiling data
+*.profraw
+*.profdata
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment and configuration
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+log/
+logs/
+
+# Test coverage reports
+/coverage/
+/tarpaulin-report.html
+
+# Benchmark results
+/criterion/
+
+# Documentation build artifacts
+/docs/
+/book/
+
+# Backup files
+*.bak
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows specific
+*.lnk
+
+# Cache directories
+.cache/
