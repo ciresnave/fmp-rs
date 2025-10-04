@@ -1,0 +1,4 @@
+# Configuration for cargo
+
+[profile.test]
+    opt-level = 0
