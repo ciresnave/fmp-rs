@@ -281,18 +281,20 @@ This library provides comprehensive coverage of the FMP API:
 - Financial Statements (income, balance sheet, cash flow)
 - Financial Ratios and Key Metrics
 - Historical Price Charts (daily and intraday)
-
-### 🚧 Coming Soon
-- News and Press Releases
-- Analyst Estimates and Ratings
-- SEC Filings
-- Insider Trading
-- ETF and Mutual Fund Data
-- Market Performance Indicators
-- Technical Indicators
-- Economics Data
-- Institutional Ownership (Form 13F)
-- And more...
+- News and Press Releases (general news, company-specific, press releases)
+- Analyst Estimates and Ratings (estimates, grades, price targets, consensus)
+- SEC Filings (10-K, 10-Q, 8-K, proxy statements, insider transactions)
+- Insider Trading (trades, statistics, RSS feeds)
+- ETF and Mutual Fund Data (holdings, performance, expense ratios, country allocations)
+- Market Performance Indicators (sector performance, market hours, gainers/losers)
+- Technical Indicators (RSI, EMA, SMA, Williams %R, ADX, and more)
+- Economics Data (treasury rates, economic indicators, commodities)
+- Institutional Ownership (Form 13F filings, institutional holders)
+- Corporate Actions (stock splits, dividends, mergers & acquisitions)
+- Cryptocurrency & Forex data
+- Congress Trading (members' trades and statistics)
+- ESG Scores and ratings
+- Bulk data processing capabilities
 
 ## Error Handling
 
