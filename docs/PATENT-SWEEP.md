@@ -1,4 +1,4 @@
-# Patent sweep: fmp-rs 0.1.4 @ dd1b628 (PR #6 head; library code identical to main 7c7bf4b) - PARTIAL
+# Patent sweep: fmp-rs 0.1.5 (library code swept @ dd1b628; identical to main 7c7bf4b, unchanged since) - PARTIAL
 
 Date: 2026-10-25; Run by: fmp-rs lane, Claude Sonnet 5.5; Method: AI-assisted search and read; NOT legal advice; NOT a freedom-to-operate opinion.
 
