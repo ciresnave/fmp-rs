@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-10-25
+
+### Added
+- `client.cot()`: Commitment of Traders `get_report`, `get_analysis`, `get_report_list` (issue #2). Columns beyond `symbol`/`date` are returned untyped (`CotRecord::fields`) because FMP's response schema has not yet been confirmed against a recorded response.
+
 ## [0.1.1] - 2024-10-04
 
 ### Fixed

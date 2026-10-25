@@ -209,6 +209,11 @@ impl FmpClient {
         Charts::new(self.clone())
     }
 
+    /// Access Commitment of Traders endpoints
+    pub fn cot(&self) -> Cot {
+        Cot::new(self.clone())
+    }
+
     /// Access economics endpoints
     pub fn economics(&self) -> Economics {
         Economics::new(self.clone())

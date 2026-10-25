@@ -8,6 +8,7 @@ pub mod common;
 pub mod company;
 pub mod congress;
 pub mod corporate_actions;
+pub mod cot;
 pub mod crypto;
 pub mod economics;
 pub mod esg;

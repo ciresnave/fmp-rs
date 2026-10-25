@@ -206,7 +206,7 @@ This checklist tracks the implementation status of all Financial Modeling Prep A
 - [ ] ❌ Stock Peers (similar companies)
 - [ ] ❌ Is Market Open
 - [ ] ❌ Delisted Companies
-- [ ] ❌ Commitment of Traders Report (COT)
+- [x] 🚧 Commitment of Traders (report, analysis, list) - `client.cot()`; rows keep API columns untyped until a recorded response confirms them
 
 ---
 
