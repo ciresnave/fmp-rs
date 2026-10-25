@@ -134,6 +134,7 @@ where
                 if self.config.enable_metrics {
                     let mut metrics = self.metrics.write().await;
                     metrics.expired_items += 1;
+                    metrics.misses += 1;
                     metrics.total_items = cache.len();
                 }
                 return None;

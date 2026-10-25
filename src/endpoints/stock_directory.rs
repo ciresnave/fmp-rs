@@ -62,7 +62,7 @@ impl StockDirectory {
     ///
     /// # Example
     /// ```no_run
-    /// # use fmp_rs::{FmpClient, endpoints::stock_directory::ScreenerCriteria};
+    /// # use fmp_rs::{FmpClient, endpoints::ScreenerCriteria};
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let client = FmpClient::new()?;
@@ -200,10 +200,12 @@ mod tests {
 
     #[test]
     fn test_screener_criteria_builder() {
-        let mut criteria = ScreenerCriteria::default();
-        criteria.market_cap_more_than = Some(1_000_000_000);
-        criteria.beta_lower_than = Some(1.5);
-        criteria.is_actively_trading = Some(true);
+        let criteria = ScreenerCriteria {
+            market_cap_more_than: Some(1_000_000_000),
+            beta_lower_than: Some(1.5),
+            is_actively_trading: Some(true),
+            ..Default::default()
+        };
 
         assert_eq!(criteria.market_cap_more_than, Some(1_000_000_000));
         assert_eq!(criteria.beta_lower_than, Some(1.5));
@@ -215,10 +217,12 @@ mod tests {
     #[ignore = "requires FMP API key"]
     async fn test_screen_stocks() {
         let client = FmpClient::new().unwrap();
-        let mut criteria = ScreenerCriteria::default();
-        criteria.market_cap_more_than = Some(10_000_000_000);
-        criteria.is_etf = Some(false);
-        criteria.limit = Some(10);
+        let criteria = ScreenerCriteria {
+            market_cap_more_than: Some(10_000_000_000),
+            is_etf: Some(false),
+            limit: Some(10),
+            ..Default::default()
+        };
 
         let result = client.stock_directory().screen_stocks(&criteria).await;
         assert!(result.is_ok());
@@ -285,10 +289,12 @@ mod tests {
     #[ignore = "requires FMP API key"]
     async fn test_screen_stocks_restrictive_criteria() {
         let client = FmpClient::new().unwrap();
-        let mut criteria = ScreenerCriteria::default();
-        criteria.market_cap_more_than = Some(1_000_000_000_000); // $1T+
-        criteria.price_more_than = Some(500.0);
-        criteria.limit = Some(5);
+        let criteria = ScreenerCriteria {
+            market_cap_more_than: Some(1_000_000_000_000), // $1T+
+            price_more_than: Some(500.0),
+            limit: Some(5),
+            ..Default::default()
+        };
 
         let result = client.stock_directory().screen_stocks(&criteria).await;
         assert!(result.is_ok());

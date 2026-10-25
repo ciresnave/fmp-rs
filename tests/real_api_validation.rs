@@ -301,17 +301,17 @@ async fn test_real_api_performance_metrics() {
         println!("✓ Performance metrics available:");
         println!("  - Total requests: {}", metrics.total_requests);
         println!(
-            "  - Average response time: {:?}",
-            metrics.average_response_time
+            "  - Average response time: {} ms",
+            metrics.average_response_time_ms
         );
-        println!("  - Error rate: {:.2}%", metrics.error_rate * 100.0);
+        println!("  - Failed requests: {}", metrics.failed_requests);
 
         assert!(
             metrics.total_requests >= 3,
             "Should have made at least 3 requests"
         );
         assert!(
-            metrics.average_response_time < Duration::from_secs(10),
+            metrics.average_response_time_ms < 10_000.0,
             "Average response time should be reasonable"
         );
     } else {

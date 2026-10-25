@@ -322,9 +322,8 @@ mod tests {
         let client = FmpClient::new().unwrap();
         let result = client.esg().get_senate_trading(None).await;
         assert!(result.is_ok());
-        let trades = result.unwrap();
+        let _trades = result.unwrap();
         // May be empty if no recent trades
-        assert!(trades.len() >= 0);
     }
 
     #[tokio::test]
@@ -333,9 +332,8 @@ mod tests {
         let client = FmpClient::new().unwrap();
         let result = client.esg().get_social_sentiment("AAPL").await;
         assert!(result.is_ok());
-        let sentiment = result.unwrap();
+        let _sentiment = result.unwrap();
         // Sentiment data may be limited
-        assert!(sentiment.len() >= 0);
     }
 
     // Edge case tests
@@ -377,10 +375,10 @@ mod tests {
         // Validate sentiment scores are in expected ranges
         for data in sentiment.iter().take(3) {
             if let Some(twitter_sentiment) = data.twitter_sentiment {
-                assert!(twitter_sentiment >= -1.0 && twitter_sentiment <= 1.0);
+                assert!((-1.0..=1.0).contains(&twitter_sentiment));
             }
             if let Some(stocktwits_sentiment) = data.stocktwits_sentiment {
-                assert!(stocktwits_sentiment >= -1.0 && stocktwits_sentiment <= 1.0);
+                assert!((-1.0..=1.0).contains(&stocktwits_sentiment));
             }
         }
     }
@@ -402,9 +400,8 @@ mod tests {
         let client = FmpClient::new().unwrap();
         let result = client.esg().get_esg_score("INVALIDSTOCK123").await;
         // Should return empty or error
-        match result {
-            Ok(data) => assert!(data.is_empty()),
-            Err(_) => {} // Error is acceptable for invalid symbol
+        if let Ok(data) = result {
+            assert!(data.is_empty())
         }
     }
 
@@ -414,7 +411,6 @@ mod tests {
         let client = FmpClient::new().unwrap();
         let result = client.esg().get_house_disclosure(None).await;
         assert!(result.is_ok());
-        let trades = result.unwrap();
-        assert!(trades.len() >= 0);
+        let _trades = result.unwrap();
     }
 }

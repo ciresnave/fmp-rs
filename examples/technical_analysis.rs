@@ -162,7 +162,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         // Check for MACD crossovers
-        if let (Some(current), Some(previous)) = (macd.get(0), macd.get(1)) {
+        if let (Some(current), Some(previous)) = (macd.first(), macd.get(1)) {
             if let (Some(cur_macd), Some(cur_signal), Some(prev_macd), Some(prev_signal)) =
                 (current.macd, current.signal, previous.macd, previous.signal)
             {

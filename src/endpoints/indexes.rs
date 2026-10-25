@@ -292,9 +292,8 @@ mod tests {
         let client = FmpClient::new().unwrap();
         let result = client.indexes().get_index_quote("INVALIDINDEX123").await;
         // Should return empty or error
-        match result {
-            Ok(quotes) => assert!(quotes.is_empty()),
-            Err(_) => {} // Error is acceptable for invalid symbol
+        if let Ok(quotes) = result {
+            assert!(quotes.is_empty())
         }
     }
 }

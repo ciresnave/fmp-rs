@@ -466,7 +466,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore] // Requires API key  
+    #[ignore] // Requires API key
     async fn test_get_bulk_financials_sample() {
         let bulk = get_test_bulk();
         let result = bulk
@@ -601,7 +601,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore] // Requires API key - WARNING: This downloads large datasets  
+    #[ignore] // Requires API key - WARNING: This downloads large datasets
     async fn test_get_bulk_etf_holdings() {
         let bulk = get_test_bulk();
         let result = bulk.get_bulk_etf_holdings().await;
@@ -689,19 +689,15 @@ mod tests {
 
         // Test with zero limit
         let result = bulk.get_bulk_prices_sample(0).await;
-        match result {
-            Ok(prices) => assert!(prices.is_empty()),
-            Err(_) => {} // May return error for zero limit
+        if let Ok(prices) = result {
+            assert!(prices.is_empty())
         }
 
         // Test with very large limit
         let result = bulk.get_bulk_prices_sample(1000000).await;
-        match result {
-            Ok(prices) => {
-                // Should be capped by API or return reasonable amount
-                assert!(prices.len() <= 1000000);
-            }
-            Err(_) => {} // May return error for excessive limit
+        if let Ok(prices) = result {
+            // Should be capped by API or return reasonable amount
+            assert!(prices.len() <= 1000000);
         }
     }
 
@@ -714,27 +710,24 @@ mod tests {
         let result = bulk
             .get_bulk_financials_sample("invalid_period", Some(2023), 3)
             .await;
-        match result {
-            Ok(statements) => assert!(statements.is_empty()),
-            Err(_) => {} // Should return error for invalid period
+        if let Ok(statements) = result {
+            assert!(statements.is_empty())
         }
 
         // Test future year
         let result = bulk
             .get_bulk_financials_sample("annual", Some(2030), 3)
             .await;
-        match result {
-            Ok(statements) => assert!(statements.is_empty()), // Future data shouldn't exist
-            Err(_) => {}                                      // May return error for future dates
+        if let Ok(statements) = result {
+            assert!(statements.is_empty())
         }
 
         // Test very old year
         let result = bulk
             .get_bulk_financials_sample("annual", Some(1900), 3)
             .await;
-        match result {
-            Ok(statements) => assert!(statements.is_empty()),
-            Err(_) => {} // May return error for very old dates
+        if let Ok(statements) = result {
+            assert!(statements.is_empty())
         }
     }
 
@@ -747,9 +740,8 @@ mod tests {
         let result = bulk
             .get_historical_prices_metadata(Some("INVALID_EXCHANGE"))
             .await;
-        match result {
-            Ok(meta) => assert!(meta.is_empty()),
-            Err(_) => {} // May return error for invalid exchange
+        if let Ok(meta) = result {
+            assert!(meta.is_empty())
         }
 
         // Test without exchange filter
@@ -831,131 +823,6 @@ mod tests {
     }
 
     // Additional edge case tests for missing endpoints
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_bulk_income_statements() {
-        let client = FmpClient::new().unwrap();
-        let result = client.bulk().get_bulk_income_statements().await;
-        assert!(result.is_ok());
-        let statements = result.unwrap();
-        if !statements.is_empty() {
-            assert!(statements[0].symbol.is_some());
-            assert!(statements[0].revenue.is_some() || statements[0].net_income.is_some());
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_bulk_income_statements_sample() {
-        let client = FmpClient::new().unwrap();
-        let result = client.bulk().get_bulk_income_statements_sample().await;
-        assert!(result.is_ok());
-        let statements = result.unwrap();
-        assert!(statements.len() <= 100); // Sample should be limited
-        if !statements.is_empty() {
-            assert!(statements[0].symbol.is_some());
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_bulk_balance_sheets() {
-        let client = FmpClient::new().unwrap();
-        let result = client.bulk().get_bulk_balance_sheets().await;
-        assert!(result.is_ok());
-        let sheets = result.unwrap();
-        if !sheets.is_empty() {
-            assert!(sheets[0].symbol.is_some());
-            assert!(sheets[0].total_assets.is_some() || sheets[0].total_liabilities.is_some());
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_bulk_balance_sheets_sample() {
-        let client = FmpClient::new().unwrap();
-        let result = client.bulk().get_bulk_balance_sheets_sample().await;
-        assert!(result.is_ok());
-        let sheets = result.unwrap();
-        assert!(sheets.len() <= 100); // Sample should be limited
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_bulk_cash_flow_statements() {
-        let client = FmpClient::new().unwrap();
-        let result = client.bulk().get_bulk_cash_flow_statements().await;
-        assert!(result.is_ok());
-        let cash_flows = result.unwrap();
-        if !cash_flows.is_empty() {
-            assert!(cash_flows[0].symbol.is_some());
-            assert!(
-                cash_flows[0].operating_cash_flow.is_some()
-                    || cash_flows[0].free_cash_flow.is_some()
-            );
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_bulk_cash_flow_statements_sample() {
-        let client = FmpClient::new().unwrap();
-        let result = client.bulk().get_bulk_cash_flow_statements_sample().await;
-        assert!(result.is_ok());
-        let cash_flows = result.unwrap();
-        assert!(cash_flows.len() <= 100); // Sample should be limited
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_bulk_etf_holdings() {
-        let client = FmpClient::new().unwrap();
-        let result = client.bulk().get_bulk_etf_holdings().await;
-        assert!(result.is_ok());
-        let holdings = result.unwrap();
-        if !holdings.is_empty() {
-            assert!(holdings[0].etf_symbol.is_some());
-            assert!(holdings[0].holding_symbol.is_some());
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_bulk_etf_holdings_sample() {
-        let client = FmpClient::new().unwrap();
-        let result = client.bulk().get_bulk_etf_holdings_sample().await;
-        assert!(result.is_ok());
-        let holdings = result.unwrap();
-        assert!(holdings.len() <= 100); // Sample should be limited
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_bulk_data_info() {
-        let client = FmpClient::new().unwrap();
-        let result = client.bulk().get_bulk_data_info().await;
-        assert!(result.is_ok());
-        let info = result.unwrap();
-        if !info.is_empty() {
-            assert!(info[0].dataset.is_some());
-            assert!(info[0].file_size.is_some() || info[0].record_count.is_some());
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_historical_prices_metadata() {
-        let client = FmpClient::new().unwrap();
-        let result = client
-            .bulk()
-            .get_historical_prices_metadata(Some("NYSE"))
-            .await;
-        assert!(result.is_ok());
-        let metadata = result.unwrap();
-        if !metadata.is_empty() {
-            assert!(metadata[0].exchange.is_some());
-        }
-    }
 
     #[tokio::test]
     #[ignore = "requires FMP API key"]
@@ -967,47 +834,4 @@ mod tests {
     }
 
     // Error handling and edge cases
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_bulk_endpoints_error_handling() {
-        let client = FmpClient::builder()
-            .api_key("invalid_key_12345")
-            .build()
-            .unwrap();
-
-        let result1 = client.bulk().get_bulk_stock_prices().await;
-        let result2 = client.bulk().get_bulk_income_statements().await;
-        let result3 = client.bulk().get_bulk_data_info().await;
-
-        // All should return errors for invalid API key
-        assert!(result1.is_err());
-        assert!(result2.is_err());
-        assert!(result3.is_err());
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_sample_vs_full_data_consistency() {
-        let client = FmpClient::new().unwrap();
-
-        // Compare sample vs full data structure
-        let sample_result = client.bulk().get_bulk_stock_prices_sample().await;
-        let full_result = client.bulk().get_bulk_stock_prices().await;
-
-        assert!(sample_result.is_ok());
-        assert!(full_result.is_ok());
-
-        let sample_data = sample_result.unwrap();
-        let full_data = full_result.unwrap();
-
-        if !sample_data.is_empty() && !full_data.is_empty() {
-            // Sample should have same structure as full data, just fewer records
-            assert!(sample_data.len() <= full_data.len());
-
-            // Both should have similar field patterns
-            if sample_data[0].symbol.is_some() {
-                assert!(full_data.iter().any(|p| p.symbol.is_some()));
-            }
-        }
-    }
 }

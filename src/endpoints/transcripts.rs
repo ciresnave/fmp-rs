@@ -240,7 +240,7 @@ mod tests {
     #[test]
     fn test_new() {
         let client = create_test_client();
-        let transcripts = Transcripts::new(client);
+        let _transcripts = Transcripts::new(client);
         // Test passes if no panic occurs
     }
 
@@ -465,7 +465,7 @@ mod tests {
         let valid_quarters = [1, 2, 3, 4];
         for quarter in valid_quarters {
             assert!(
-                quarter >= 1 && quarter <= 4,
+                (1..=4).contains(&quarter),
                 "Quarter {} should be valid",
                 quarter
             );
@@ -474,7 +474,7 @@ mod tests {
         let invalid_quarters = [0, 5, -1, 13];
         for quarter in invalid_quarters {
             assert!(
-                !(quarter >= 1 && quarter <= 4),
+                !(1..=4).contains(&quarter),
                 "Quarter {} should be invalid",
                 quarter
             );

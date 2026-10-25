@@ -3,8 +3,8 @@
 //! These tests verify the library functionality without making actual API calls.
 //! Tests marked with #[ignore] require an actual FMP API key and will make real API calls.
 
-use crate::FmpClient;
 use crate::models::common::Period;
+use crate::FmpClient;
 
 #[cfg(test)]
 mod unit_tests {

@@ -4,8 +4,8 @@ use crate::bulk_processing::{BulkProcessingConfig, ChunkProcessor};
 use crate::cache::{CacheConfig, IntelligentCache, SmartCacheStrategy};
 use crate::error::{Error, Result};
 use crate::production::{Metrics, PoolConfig, ProductionExecutor, RateLimitConfig, RetryConfig};
-use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::sync::Arc;
 use std::time::Duration;
 use tracing::{info, warn};
@@ -177,9 +177,7 @@ impl ProductionFmpClient {
         let mut chunk_processor = ChunkProcessor::new(self.config.bulk_processing.clone());
         chunk_processor.add_items(data)?;
 
-        chunk_processor
-            .process_chunks(|chunk| processor(chunk))
-            .await
+        chunk_processor.process_chunks(processor).await
     }
 
     /// Get performance metrics
@@ -280,12 +278,12 @@ impl ProductionFmpClient {
     // Endpoint accessors (same as regular client but with production features)
 
     /// Access quote endpoints with production features
-    pub fn quote(&self) -> ProductionQuote {
+    pub fn quote(&self) -> ProductionQuote<'_> {
         ProductionQuote::new(self)
     }
 
     /// Access company info endpoints with production features  
-    pub fn company_info(&self) -> ProductionCompanyInfo {
+    pub fn company_info(&self) -> ProductionCompanyInfo<'_> {
         ProductionCompanyInfo::new(self)
     }
 
@@ -356,6 +354,12 @@ impl ProductionClientBuilder {
 
     pub async fn build(self) -> Result<ProductionFmpClient> {
         ProductionFmpClient::new(self.config).await
+    }
+}
+
+impl Default for ProductionClientBuilder {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

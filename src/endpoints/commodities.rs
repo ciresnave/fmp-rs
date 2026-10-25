@@ -305,9 +305,8 @@ mod tests {
             .get_commodity_quote("INVALIDCOMMODITY123")
             .await;
         // Should return empty or error
-        match result {
-            Ok(data) => assert!(data.is_empty()),
-            Err(_) => {} // Error is acceptable for invalid commodity
+        if let Ok(data) = result {
+            assert!(data.is_empty())
         }
     }
 }

@@ -2,8 +2,9 @@
 //!
 //! Run with: cargo bench
 
-use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use fmp_rs::{FmpClient, ProductionConfig, ProductionFmpClient};
+use std::hint::black_box;
 use tokio::runtime::Runtime;
 
 fn bench_basic_client(c: &mut Criterion) {

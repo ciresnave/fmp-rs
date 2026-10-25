@@ -4,7 +4,7 @@
 //!
 //! Make sure FMP_API_KEY environment variable is set
 
-use fmp_rs::{FmpClient, models::common::Period};
+use fmp_rs::{models::common::Period, FmpClient};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

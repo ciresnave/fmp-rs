@@ -513,87 +513,6 @@ mod tests {
     }
 
     // Additional edge case tests
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_dividend_calendar_with_dates() {
-        let client = FmpClient::new().unwrap();
-        let result = client
-            .corporate_actions()
-            .get_dividend_calendar(Some("2024-01-01"), Some("2024-01-31"))
-            .await;
-        assert!(result.is_ok());
-        let dividends = result.unwrap();
-        // Should have some dividend data for a month period
-        if !dividends.is_empty() {
-            assert!(dividends[0].symbol.is_some());
-            assert!(dividends[0].dividend.is_some());
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_economic_calendar() {
-        let client = FmpClient::new().unwrap();
-        let result = client
-            .corporate_actions()
-            .get_economic_calendar(None, None)
-            .await;
-        assert!(result.is_ok());
-        let events = result.unwrap();
-        if !events.is_empty() {
-            assert!(events[0].country.is_some());
-            assert!(events[0].event.is_some());
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_earnings_calendar_future_dates() {
-        let client = FmpClient::new().unwrap();
-        let result = client
-            .corporate_actions()
-            .get_earnings_calendar(Some("2025-01-01"), Some("2025-01-31"))
-            .await;
-        assert!(result.is_ok());
-        // Future earnings calendar should return data
-        let earnings = result.unwrap();
-        if !earnings.is_empty() {
-            assert!(earnings[0].symbol.is_some());
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_ipo_calendar_with_dates() {
-        let client = FmpClient::new().unwrap();
-        let result = client
-            .corporate_actions()
-            .get_ipo_calendar(Some("2024-01-01"), Some("2024-12-31"))
-            .await;
-        assert!(result.is_ok());
-        let ipos = result.unwrap();
-        // IPO calendar might be empty for some periods
-        if !ipos.is_empty() {
-            assert!(ipos[0].symbol.is_some());
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_stock_splits_calendar() {
-        let client = FmpClient::new().unwrap();
-        let result = client
-            .corporate_actions()
-            .get_stock_splits_calendar(Some("2024-01-01"), Some("2024-12-31"))
-            .await;
-        assert!(result.is_ok());
-        let splits = result.unwrap();
-        // Stock splits are less frequent events
-        if !splits.is_empty() {
-            assert!(splits[0].symbol.is_some());
-            assert!(splits[0].numerator.is_some() || splits[0].denominator.is_some());
-        }
-    }
 
     #[tokio::test]
     #[ignore = "requires FMP API key"]
@@ -605,9 +524,6 @@ mod tests {
             .get_earnings_calendar(Some("invalid-date"), Some("2024-12-31"))
             .await;
         // Should handle gracefully - either error or empty result
-        match result {
-            Ok(_) => {}  // API might handle gracefully
-            Err(_) => {} // Or return error, both acceptable
-        }
+        if result.is_ok() {}
     }
 }

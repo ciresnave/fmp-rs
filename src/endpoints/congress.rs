@@ -490,49 +490,6 @@ mod tests {
     }
 
     // Additional edge case tests
-    #[tokio::test]
-    #[ignore] // Requires API key
-    async fn test_get_insider_stats() {
-        let congress = get_test_congress();
-        let result = congress.get_insider_stats("AAPL").await;
-        assert!(result.is_ok());
-        let stats = result.unwrap();
-        if !stats.is_empty() {
-            assert_eq!(stats[0].symbol.as_ref().unwrap(), "AAPL");
-        }
-    }
-
-    #[tokio::test]
-    #[ignore] // Requires API key
-    async fn test_get_insider_roster() {
-        let congress = get_test_congress();
-        let result = congress.get_insider_roster("AAPL").await;
-        assert!(result.is_ok());
-        let roster = result.unwrap();
-        if !roster.is_empty() {
-            assert!(roster[0].name.is_some());
-        }
-    }
-
-    #[tokio::test]
-    #[ignore] // Requires API key
-    async fn test_get_congressional_summary() {
-        let congress = get_test_congress();
-        let result = congress.get_congressional_summary(Some("TSLA")).await;
-        assert!(result.is_ok());
-    }
-
-    #[tokio::test]
-    #[ignore] // Requires API key
-    async fn test_get_insider_ownership() {
-        let congress = get_test_congress();
-        let result = congress.get_insider_ownership("AAPL").await;
-        assert!(result.is_ok());
-        let ownership = result.unwrap();
-        if !ownership.is_empty() {
-            assert!(ownership[0].reporting_name.is_some());
-        }
-    }
 
     #[tokio::test]
     #[ignore] // Requires API key

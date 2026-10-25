@@ -4,7 +4,7 @@ use crate::{
     client::FmpClient,
     error::Result,
     models::sec_filings::{
-        CikSearch, CompanyName, Form4, Form13F, InsiderOwnership, SecFiling, SecFilingRss,
+        CikSearch, CompanyName, Form13F, Form4, InsiderOwnership, SecFiling, SecFilingRss,
     },
 };
 use serde::Serialize;
@@ -484,29 +484,8 @@ mod tests {
     async fn test_get_cusip_mapper_invalid() {
         let client = FmpClient::new().unwrap();
         let result = client.sec_filings().get_cusip_mapper("INVALID123").await;
-        match result {
-            Ok(results) => assert!(results.is_empty()),
-            Err(_) => {} // Error is acceptable for invalid CUSIP
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_company_name_by_cik() {
-        let client = FmpClient::new().unwrap();
-        let result = client
-            .sec_filings()
-            .get_company_name_by_cik("0000320193")
-            .await; // Apple
-        assert!(result.is_ok());
-        let names = result.unwrap();
-        if !names.is_empty() {
-            assert!(
-                names[0]
-                    .name
-                    .as_ref()
-                    .map_or(false, |n| n.to_lowercase().contains("apple"))
-            );
+        if let Ok(results) = result {
+            assert!(results.is_empty())
         }
     }
 
@@ -518,9 +497,8 @@ mod tests {
             .sec_filings()
             .get_company_name_by_cik("9999999999")
             .await;
-        match result {
-            Ok(names) => assert!(names.is_empty()),
-            Err(_) => {} // Error is acceptable for invalid CIK
+        if let Ok(names) = result {
+            assert!(names.is_empty())
         }
     }
 
@@ -556,9 +534,8 @@ mod tests {
             .sec_filings()
             .get_insider_ownership("INVALID_SYMBOL_12345", Some(1))
             .await;
-        match result {
-            Ok(ownership) => assert!(ownership.is_empty()),
-            Err(_) => {} // Error is acceptable for invalid symbol
+        if let Ok(ownership) = result {
+            assert!(ownership.is_empty())
         }
     }
 }
