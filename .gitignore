@@ -32,7 +32,8 @@ logs/
 /criterion/
 
 # Documentation build artifacts
-/docs/
+/docs/*
+!/docs/PATENT-SWEEP.md
 /book/
 
 # Backup files
