@@ -1,10 +1,10 @@
-# Patent sweep: fmp-rs 0.1.6 (library code swept @ dd1b628; src/ unchanged on main through 91c94e0) - PARTIAL
+# Patent sweep: fmp-rs 0.1.7 (library code swept @ dd1b628; src/ unchanged on main through 91c94e0) - PARTIAL
 
 Date: 2026-10-25; Run by: fmp-rs lane, Claude Sonnet 5.5; Method: AI-assisted search and read; NOT legal advice; NOT a freedom-to-operate opinion.
 
 **Status: PARTIAL.** Idea 3 (rate limiting / retry) is best covered. A first run was cut short by HTTP 503 from Google Patents
 (our own query burst); a second run on 2026-10-25 (paced, one query per minute) ran the five missing queries and read the UNREAD
-rows. Ideas 1, 2, 4, 5 are still thinly searched (see "Coverage gaps"); idea 5 has had no query of its own.
+rows. Ideas 1, 2, 4, 5 are still thinly searched (see "Coverage gaps"); idea 5 got one query in a third run (hits judged by title only).
 
 ## Ideas swept (fmp-rs is a REST client; little is novel)
 1. Response cache whose TTL is chosen by substring-matching the endpoint path (`SmartCacheStrategy::get_ttl_for_endpoint`, src/cache.rs).
@@ -31,6 +31,7 @@ rows. Ideas 1, 2, 4, 5 are still thinly searched (see "Coverage gaps"); idea 5 h
 | 4 | `chunk "memory threshold" process dataset in chunks adjust chunk size memory limit` (second run) | 139; Splunk/Pure Storage/Commvault; Software AG US10715448B2 read |
 | 4 | `"memory budget" backpressure streaming records chunk processor` (second run) | 1 (OpenAI matrix-multiplication, irrelevant) |
 | 3 | `"minimum interval" between successive requests client throttle api rate limit` (second run) | 18; Amazon streaming-data family; Kaseya US20250094286A1 (same family as row 3, not read); none read beyond title |
+| 5 | `"bypass" OR "skip" cache "bulk" OR "streaming" request "uniform resource locator" OR "endpoint" client api response not cached` (third run) | 46695; Citrix/Plamondon proxy-cache families (freshness, prefetch, revalidation); none read beyond title; none about a client library skipping its cache by path |
 
 ## Hits
 | # | patent | title | assignee | status (Google Patents, not the official record) | claims read | overlap | our difference | verdict |
@@ -48,13 +49,14 @@ rows. Ideas 1, 2, 4, 5 are still thinly searched (see "Coverage gaps"); idea 5 h
 | 11 | US10318882B2 | Optimized training of linear machine learning models | Amazon | Active; est. exp. 2036-10-27 | independent 1, 6 | memory-driven pruning (idea 4) | requires an ML service pruning a parameter vector of model weights when a trigger fires, by quantile analysis without a sort; unrelated to our chunking. Sibling family members (US10339465B2, US9672474B2) NOT read: same ML-training subject, low relevance | clear (this member); siblings UNREAD |
 | 12 | US10715448B2 | Predictive resource management in file transfer servers | Software AG, now IBM | Active | independent 1, 8, 14, 15, 17 | throttles requests by a "speed limiter" (idea 3) | every independent requires two machine-learned models (time-dependent usage and file data), plural predictor processes, and an accept/reject decision per incoming request on the server side; ours is a client-side fixed interval with no models | clear |
 | 13 | US8412823B1 | Managing tracking information entries in resource cache components | Amazon | Expired - Fee Related | independent 1, 11, 18 | invalidates cache before expiry (idea 2) | requires a content delivery service provider and invalidation of tracking-information entries from an origin source; ours has neither | clear (expired in any case) |
+| 14 | US20250094286A1 | Fleetwide adaptive rate limiting gatekeeper (continuation of row 3) | Kaseya | Pending (application); est. exp. 2042-12-16 | independent 1, 8, 14 | retry-after; throttled-response handling (idea 3) | claims 1 and 14 need API-call-permission data structures naming an API and scopes, per-scope retry-after, wait = max across scopes, and blocking clients; claim 8 needs accessor usage profiles (time period, constraint, accessor type) in a multi-tenant infrastructure; ours has none of these and ignores `Retry-After` | clear on the current text; pending: re-check at grant |
 
 ## Coverage gaps (the reason this is PARTIAL)
 - Ideas 1, 2, 4: each now has 3-4 queries, but most top hits were judged by title/snippet only (CDN, Splunk, Level 3, Seven Networks families); only the closest were read.
-- Idea 5 (skip cache for bulk/streaming paths) has had no query of its own.
-- Idea 3: the `token bucket` query returned 0 results; Kaseya US20250094286A1 (a continuation-family application of row 3) and the US10339465B2/US9672474B2 siblings are UNREAD.
+- Idea 5 (skip cache for bulk/streaming paths): one query; top hits (Citrix proxy caches) judged by title only.
+- Idea 3: the `token bucket` query returned 0 results. The US10339465B2/US9672474B2 siblings (ML-training subject, low relevance) are UNREAD.
 - US only; no EP / WIPO search.
-- Next: one query for idea 5, read the UNREAD items above, then drop the PARTIAL label only if the PM accepts the remaining gaps.
+- Next: a second idea-5 query and read its closest hits, then drop the PARTIAL label only if the PM accepts the remaining gaps.
 
 ## Needs review (to the PM)
 No overlap found on any independent claim read. Row 5 (Oracle, pending) is the one to watch. Nothing is `needs-review` today,
