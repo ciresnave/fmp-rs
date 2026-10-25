@@ -1,10 +1,10 @@
-# Patent sweep: fmp-rs 0.1.5 (library code swept @ dd1b628; identical to main 7c7bf4b, unchanged since) - PARTIAL
+# Patent sweep: fmp-rs 0.1.6 (library code swept @ dd1b628; src/ unchanged on main through 91c94e0) - PARTIAL
 
 Date: 2026-10-25; Run by: fmp-rs lane, Claude Sonnet 5.5; Method: AI-assisted search and read; NOT legal advice; NOT a freedom-to-operate opinion.
 
-**Status: PARTIAL.** Idea 3 (rate limiting / retry) was searched and read; ideas 1, 2, 4, 5 have thin or no coverage (see
-"Coverage gaps"). Google Patents began answering 503 to both its query endpoint and its patent pages (a rate limit that our own
-query burst triggered), so the remaining queries could not be run. Rows marked UNREAD were not read and are not `clear`.
+**Status: PARTIAL.** Idea 3 (rate limiting / retry) is best covered. A first run was cut short by HTTP 503 from Google Patents
+(our own query burst); a second run on 2026-10-25 (paced, one query per minute) ran the five missing queries and read the UNREAD
+rows. Ideas 1, 2, 4, 5 are still thinly searched (see "Coverage gaps"); idea 5 has had no query of its own.
 
 ## Ideas swept (fmp-rs is a REST client; little is novel)
 1. Response cache whose TTL is chosen by substring-matching the endpoint path (`SmartCacheStrategy::get_ttl_for_endpoint`, src/cache.rs).
@@ -26,7 +26,11 @@ query burst triggered), so the remaining queries could not be run. Rows marked U
 | 4 | `chunk "memory usage" limit dataset processing "chunk size" stream processor` | 112; Amazon ML-data family (US10318882B2 etc.), Acronis; not read |
 | 4 | `bulk data "memory limit" "chunk" "process" "progress" streaming "batch size" large file records` | 0 results |
 | 4 | general web search (earlier today) for adaptive chunking | US8707320B2 read; US8819288B2 found, not read |
-| 1,2,4,5 | five further queries (cache expiration by request type; LRU+TTL+metrics; chunk + memory threshold; memory budget + backpressure; minimum interval between requests) | **NOT COMPLETED: HTTP 503 from Google Patents on every retry** |
+| 1 | `cache expiration time determined by request type api client` (second run) | 48286; CDN/mobile-caching (Amazon, Seven Networks); Amazon US8412823B1 read |
+| 2 | `cache "time to live" LRU eviction hit rate metrics maximum entries client` (second run) | 27; prefetch (Microsoft), flow management (Amazon), CDN (Level 3); none read |
+| 4 | `chunk "memory threshold" process dataset in chunks adjust chunk size memory limit` (second run) | 139; Splunk/Pure Storage/Commvault; Software AG US10715448B2 read |
+| 4 | `"memory budget" backpressure streaming records chunk processor` (second run) | 1 (OpenAI matrix-multiplication, irrelevant) |
+| 3 | `"minimum interval" between successive requests client throttle api rate limit` (second run) | 18; Amazon streaming-data family; Kaseya US20250094286A1 (same family as row 3, not read); none read beyond title |
 
 ## Hits
 | # | patent | title | assignee | status (Google Patents, not the official record) | claims read | overlap | our difference | verdict |
@@ -39,19 +43,22 @@ query burst triggered), so the remaining queries could not be run. Rows marked U
 | 6 | US10783077B2 | Managing resources using resource expiration data | Amazon | Active; est. exp. 2029-07-10 | independent 1, 11 | TTL on cached resources (ideas 1, 2) | requires hierarchically arranged cache servers and updating expiration from request counts to the higher level; ours is one in-process cache with fixed TTLs | clear |
 | 7 | US10623408B1 | Context sensitive object management | Amazon | Active | independent 1, 3, 10 | invalidates a cache entry before its TTL | requires a CDN provider, DNS-query requests, and per-user context criteria with request-count thresholds; ours has none | clear |
 | 8 | US9973306B2 | Freshness-sensitive message delivery | Amazon | Active; est. exp. 2036-04-15 | independent 1, 5, 13 | exponential-backoff retry (dep. 2, 7) | event-stream message delivery with freshness values and non-blocking later events; ours retries a single HTTP request | clear |
-| 9 | US8819288B2 | Optimized data stream compression using data-dependent chunking | not recorded | not recorded | **NOT READ** | - | - | **UNREAD** |
-| 10 | US12039358B1 | Efficient management of packet flow information at network function ... | Amazon | not recorded | **NOT READ** | - | - | **UNREAD** |
-| 11 | US10318882B2 and the Amazon ML-data family (US10339465B2, US9672474B2, ...) | chunk-size tradeoffs for ML data filtering | Amazon | not recorded | **NOT READ** | - | - | **UNREAD** |
+| 9 | US8819288B2 | Optimized data stream compression using data-dependent chunking | Microsoft | Expired - Fee Related | independent 1, 10, 14 (claim 14 read in part) | chunks a data stream (idea 4) | every read independent requires partitioning by previously seen byte patterns, signatures matched against stored chunks, and forward/backward match-length scans for compression; ours is fixed-size chunking with no signatures or compression | clear (expired in any case) |
+| 10 | US12039358B1 | Efficient management of packet flow information at network function virtualization services | Amazon | Active; est. exp. 2042-10-12 | independent 1 (6 read in part) | expiry-based eviction (idea 2) | requires a signature table of buckets of packet-flow entries on a network-function-virtualization service, a multi-element object indexed by bucket and entry identifiers, and eviction of a bucket's entries on a packet arrival; ours is an in-process key/TTL map | clear |
+| 11 | US10318882B2 | Optimized training of linear machine learning models | Amazon | Active; est. exp. 2036-10-27 | independent 1, 6 | memory-driven pruning (idea 4) | requires an ML service pruning a parameter vector of model weights when a trigger fires, by quantile analysis without a sort; unrelated to our chunking. Sibling family members (US10339465B2, US9672474B2) NOT read: same ML-training subject, low relevance | clear (this member); siblings UNREAD |
+| 12 | US10715448B2 | Predictive resource management in file transfer servers | Software AG, now IBM | Active | independent 1, 8, 14, 15, 17 | throttles requests by a "speed limiter" (idea 3) | every independent requires two machine-learned models (time-dependent usage and file data), plural predictor processes, and an accept/reject decision per incoming request on the server side; ours is a client-side fixed interval with no models | clear |
+| 13 | US8412823B1 | Managing tracking information entries in resource cache components | Amazon | Expired - Fee Related | independent 1, 11, 18 | invalidates cache before expiry (idea 2) | requires a content delivery service provider and invalidation of tracking-information entries from an origin source; ours has neither | clear (expired in any case) |
 
 ## Coverage gaps (the reason this is PARTIAL)
-- Ideas 1, 2, 4, 5: hits seen only by title/snippet are UNREAD, and the planned follow-up queries returned 503.
-- Idea 3 is the best covered, but the `token bucket` query returned 0 results, so that part of the space is probably under-searched.
+- Ideas 1, 2, 4: each now has 3-4 queries, but most top hits were judged by title/snippet only (CDN, Splunk, Level 3, Seven Networks families); only the closest were read.
+- Idea 5 (skip cache for bulk/streaming paths) has had no query of its own.
+- Idea 3: the `token bucket` query returned 0 results; Kaseya US20250094286A1 (a continuation-family application of row 3) and the US10339465B2/US9672474B2 siblings are UNREAD.
 - US only; no EP / WIPO search.
-- Re-run the 503'd queries after Google Patents recovers (paced, about one per minute), then read rows 9-11 and anything new.
+- Next: one query for idea 5, read the UNREAD items above, then drop the PARTIAL label only if the PM accepts the remaining gaps.
 
 ## Needs review (to the PM)
 No overlap found on any independent claim read. Row 5 (Oracle, pending) is the one to watch. Nothing is `needs-review` today,
-but the file is PARTIAL: do not treat it as covering a release until the UNREAD rows and the gaps are closed.
+but the file is still PARTIAL: do not treat it as covering a release until the gaps above are closed or the PM accepts them.
 
 ## Limitations
 AI-assisted; Google Patents text is machine-converted; status and expiry are Google Patents estimates, not the official register; US only; search coverage incomplete as stated; not legal advice.
