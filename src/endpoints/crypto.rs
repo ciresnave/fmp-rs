@@ -296,9 +296,8 @@ mod tests {
         let client = FmpClient::new().unwrap();
         let result = client.crypto().get_crypto_quote("INVALIDCRYPTO123").await;
         // Should return empty or error
-        match result {
-            Ok(data) => assert!(data.is_empty()),
-            Err(_) => {} // Error is acceptable for invalid crypto
+        if let Ok(data) = result {
+            assert!(data.is_empty())
         }
     }
 }

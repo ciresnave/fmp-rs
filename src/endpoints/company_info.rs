@@ -296,8 +296,10 @@ impl CompanyInfo {
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let client = FmpClient::new()?;
-    /// let info = client.company_info().get_core_info("AAPL").await?;
-    /// println!("CIK: {}, Exchange: {}", info.cik, info.exchange);
+    /// let infos = client.company_info().get_core_info("AAPL").await?;
+    /// for info in &infos {
+    ///     println!("CIK: {}, Exchange: {}", info.cik, info.exchange);
+    /// }
     /// # Ok(())
     /// # }
     /// ```

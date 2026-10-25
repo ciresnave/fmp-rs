@@ -335,7 +335,7 @@ where
 
     /// Estimate memory usage of a batch
     fn estimate_batch_memory(&self, batch: &[T]) -> usize {
-        std::mem::size_of::<T>() * batch.len() + 1024 * batch.len() // Rough overhead estimation
+        std::mem::size_of_val(batch) + 1024 * batch.len() // Rough overhead estimation
     }
 
     /// Estimate total memory usage
@@ -420,7 +420,7 @@ mod tests {
         use futures::StreamExt;
 
         let data = vec![1, 2, 3, 4, 5, 6, 7];
-        let mut stream = BulkDataStream::new(data, 3);
+        let stream = BulkDataStream::new(data, 3);
 
         let chunks: Vec<Vec<i32>> = stream.collect().await;
         assert_eq!(chunks, vec![vec![1, 2, 3], vec![4, 5, 6], vec![7]]);

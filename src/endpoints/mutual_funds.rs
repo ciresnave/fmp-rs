@@ -296,7 +296,7 @@ mod tests {
     #[test]
     fn test_new() {
         let client = create_test_client();
-        let mutual_funds = MutualFunds::new(client);
+        let _mutual_funds = MutualFunds::new(client);
         // Test passes if no panic occurs
     }
 
@@ -538,9 +538,8 @@ mod tests {
             .mutual_funds()
             .get_fund_details("INVALID_FUND_XYZ")
             .await;
-        match result {
-            Ok(funds) => assert!(funds.is_empty()),
-            Err(_) => {} // Error is acceptable for invalid symbols
+        if let Ok(funds) = result {
+            assert!(funds.is_empty())
         }
     }
 
@@ -566,9 +565,8 @@ mod tests {
             .mutual_funds()
             .get_fund_holdings("INVALID_FUND")
             .await;
-        match result {
-            Ok(holdings) => assert!(holdings.is_empty()),
-            Err(_) => {} // Error is acceptable
+        if let Ok(holdings) = result {
+            assert!(holdings.is_empty())
         }
     }
 }

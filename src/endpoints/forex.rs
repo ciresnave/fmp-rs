@@ -5,7 +5,7 @@ use crate::{
     error::Result,
     models::crypto::{ForexHistorical, ForexIntraday, ForexPair, ForexQuote},
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 /// Forex API endpoints
 pub struct Forex {
@@ -295,9 +295,8 @@ mod tests {
         let client = FmpClient::new().unwrap();
         let result = client.forex().get_forex_quote("INVALIDPAIR123").await;
         // Should return empty or error
-        match result {
-            Ok(data) => assert!(data.is_empty()),
-            Err(_) => {} // Error is acceptable for invalid pair
+        if let Ok(data) = result {
+            assert!(data.is_empty())
         }
     }
 }

@@ -1,9 +1,9 @@
 //! Analyst endpoints
 
-use crate::Result;
 use crate::client::FmpClient;
 use crate::models::analyst::{AnalystEstimates, AnalystGrade, ConsensusSummary, PriceTarget};
 use crate::models::common::Period;
+use crate::Result;
 use serde::Serialize;
 
 /// Analyst API endpoints
@@ -188,7 +188,7 @@ mod tests {
     fn test_new() {
         let client = FmpClient::builder().api_key("test_key").build().unwrap();
         let analyst = Analyst::new(client);
-        assert!(std::ptr::addr_of!(analyst.client).is_null() == false);
+        assert!(!std::ptr::addr_of!(analyst.client).is_null());
     }
 
     #[tokio::test]
@@ -269,29 +269,24 @@ mod tests {
             .await;
 
         // All should handle gracefully - either empty results or errors
-        match estimates_result {
-            Ok(data) => assert!(data.is_empty()),
-            Err(_) => {} // Error is acceptable
+        if let Ok(data) = estimates_result {
+            assert!(data.is_empty())
         }
 
-        match targets_result {
-            Ok(data) => assert!(data.is_empty()),
-            Err(_) => {} // Error is acceptable
+        if let Ok(data) = targets_result {
+            assert!(data.is_empty())
         }
 
-        match consensus_result {
-            Ok(data) => assert!(data.is_empty()),
-            Err(_) => {} // Error is acceptable
+        if let Ok(data) = consensus_result {
+            assert!(data.is_empty())
         }
 
-        match grades_result {
-            Ok(data) => assert!(data.is_empty()),
-            Err(_) => {} // Error is acceptable
+        if let Ok(data) = grades_result {
+            assert!(data.is_empty())
         }
 
-        match rec_consensus_result {
-            Ok(data) => assert!(data.is_empty()),
-            Err(_) => {} // Error is acceptable
+        if let Ok(data) = rec_consensus_result {
+            assert!(data.is_empty())
         }
     }
 

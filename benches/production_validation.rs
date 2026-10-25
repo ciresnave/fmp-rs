@@ -2,8 +2,9 @@
 //!
 //! Run with: cargo bench --bench production_validation
 
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+use criterion::{criterion_group, criterion_main, Criterion};
 use fmp_rs::{CacheConfig, ProductionConfig, ProductionFmpClient, RateLimitConfig};
+use std::hint::black_box;
 use std::time::Duration;
 use tokio::runtime::Runtime;
 
@@ -60,8 +61,8 @@ fn bench_cache_operations(c: &mut Criterion) {
         b.iter(|| {
             rt.block_on(async {
                 // Simulate caching a response
-                let endpoint = black_box("/quote/AAPL");
-                let mock_data = serde_json::json!({"symbol": "AAPL", "price": 150.0});
+                let _endpoint = black_box("/quote/AAPL");
+                let _mock_data = serde_json::json!({"symbol": "AAPL", "price": 150.0});
 
                 // This would normally go through the caching layer
                 // For benchmarking, we'll just test the client health check which is lightweight

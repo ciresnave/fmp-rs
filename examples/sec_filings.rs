@@ -148,7 +148,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!(
                     "{} - CIK: {}",
                     result.name.as_deref().unwrap_or("N/A"),
-                    &result.cik
+                    result.cik
                 );
             }
         }
@@ -165,7 +165,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         Ok(companies) => {
             for company in companies {
-                println!("CIK: {} - {}", &company.cik, &company.name);
+                println!("CIK: {} - {}", company.cik, company.name);
             }
         }
         Err(e) => eprintln!("Error fetching company name: {}", e),
@@ -179,7 +179,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             for mapping in mappings {
                 println!(
                     "CIK: {} - {} (Company)",
-                    &mapping.cik,
+                    mapping.cik,
                     mapping.name.as_deref().unwrap_or("N/A")
                 );
             }

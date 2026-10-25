@@ -52,6 +52,6 @@ pub use mutual_funds::MutualFunds;
 pub use news::News;
 pub use quote::Quote;
 pub use sec_filings::SecFilings;
-pub use stock_directory::StockDirectory;
+pub use stock_directory::{ScreenerCriteria, StockDirectory};
 pub use technical_indicators::TechnicalIndicators;
 pub use transcripts::Transcripts;

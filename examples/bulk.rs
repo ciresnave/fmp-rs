@@ -7,7 +7,7 @@
 //! - ETF composition analysis
 //! - Data management best practices
 
-use fmp_rs::{FmpClient, error::Result};
+use fmp_rs::{error::Result, FmpClient};
 use std::collections::HashMap;
 
 #[tokio::main]

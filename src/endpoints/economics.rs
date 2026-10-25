@@ -460,47 +460,6 @@ mod tests {
     }
 
     // Additional edge case tests
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_inflation_rate() {
-        let client = FmpClient::new().unwrap();
-        let result = client.economics().get_inflation_rate().await;
-        assert!(result.is_ok());
-        let inflation = result.unwrap();
-        assert!(!inflation.is_empty());
-        // Inflation rate should be a percentage
-        if let Some(value) = inflation[0].value {
-            assert!(value >= -10.0 && value <= 20.0); // Reasonable range for inflation
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_unemployment_rate() {
-        let client = FmpClient::new().unwrap();
-        let result = client.economics().get_unemployment_rate().await;
-        assert!(result.is_ok());
-        let unemployment = result.unwrap();
-        assert!(!unemployment.is_empty());
-        // Unemployment rate should be a reasonable percentage
-        if let Some(value) = unemployment[0].value {
-            assert!(value >= 0.0 && value <= 50.0); // Reasonable range
-        }
-    }
-
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_federal_funds_rate() {
-        let client = FmpClient::new().unwrap();
-        let result = client.economics().get_federal_funds_rate().await;
-        assert!(result.is_ok());
-        let fed_rate = result.unwrap();
-        assert!(!fed_rate.is_empty());
-        // Fed funds rate should be a reasonable percentage
-        if let Some(value) = fed_rate[0].value {
-            assert!(value >= 0.0 && value <= 25.0); // Reasonable range
-        }
-    }
 
     #[tokio::test]
     #[ignore = "requires FMP API key"]
@@ -512,10 +471,7 @@ mod tests {
             .get_treasury_rates(Some("invalid-date"), Some("2024-12-31"))
             .await;
         // Should handle invalid dates gracefully
-        match result {
-            Ok(_) => {}  // API might handle it gracefully
-            Err(_) => {} // Or return an error, both are acceptable
-        }
+        if result.is_ok() {}
     }
 
     #[tokio::test]

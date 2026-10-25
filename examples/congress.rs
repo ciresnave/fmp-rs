@@ -6,7 +6,7 @@
 //! - Political trading impact analysis
 //! - Investment sentiment indicators
 
-use fmp_rs::{FmpClient, error::Result};
+use fmp_rs::{error::Result, FmpClient};
 use std::collections::HashMap;
 
 #[tokio::main]

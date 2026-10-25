@@ -5,7 +5,6 @@ use fmp_rs::{
     ProductionFmpClient, RateLimitConfig, RetryConfig, SmartCacheStrategy,
 };
 use std::time::Duration;
-use tokio;
 
 #[tokio::test]
 async fn test_production_client_initialization() {

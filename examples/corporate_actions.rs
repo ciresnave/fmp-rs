@@ -172,7 +172,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             // Show top dividend payers
             let mut sorted: Vec<_> = dividend_map.iter().collect();
-            sorted.sort_by(|a, b| b.1.0.partial_cmp(&a.1.0).unwrap());
+            sorted.sort_by(|a, b| b.1 .0.partial_cmp(&a.1 .0).unwrap());
 
             for (symbol, (total, count)) in sorted.iter().take(10) {
                 println!("{}: ${:.2} ({} payments)", symbol, total, count);

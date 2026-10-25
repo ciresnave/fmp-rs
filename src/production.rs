@@ -201,8 +201,8 @@ impl ProductionExecutor {
 
                     // Add jitter if enabled
                     if self.retry_config.jitter {
-                        use rand::Rng;
-                        let jitter_ms = rand::thread_rng().gen_range(0..=100);
+                        use rand::RngExt;
+                        let jitter_ms = rand::rng().random_range(0..=100);
                         delay += Duration::from_millis(jitter_ms);
                     }
                 }

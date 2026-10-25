@@ -2,7 +2,6 @@
 
 use crate::models::market_hours::{ExchangeHours, ExtendedMarketHours, MarketHoliday};
 use crate::{FmpClient, Result};
-use chrono::Datelike;
 use serde::Serialize;
 
 /// Market Hours API endpoints
@@ -184,6 +183,7 @@ impl MarketHours {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::Datelike;
 
     fn create_test_client() -> FmpClient {
         FmpClient::builder().api_key("test_key").build().unwrap()
@@ -192,7 +192,7 @@ mod tests {
     #[test]
     fn test_new() {
         let client = create_test_client();
-        let market_hours = MarketHours::new(client);
+        let _market_hours = MarketHours::new(client);
         // Test passes if no panic occurs
     }
 
@@ -280,7 +280,7 @@ mod tests {
     #[test]
     fn test_market_hours_url_building() {
         let client = create_test_client();
-        let market_hours = MarketHours::new(client);
+        let _market_hours = MarketHours::new(client);
         // Test passes if construction succeeds without panics
     }
 

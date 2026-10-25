@@ -12,9 +12,11 @@
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     let client = FmpClient::new();
-//!     let quote = client.quote().get_quote("AAPL").await?;
-//!     println!("Apple stock price: ${}", quote.price);
+//!     let client = FmpClient::new()?;
+//!     let quotes = client.quote().get_quote("AAPL").await?;
+//!     for quote in &quotes {
+//!         println!("Apple stock price: ${}", quote.price);
+//!     }
 //!     Ok(())
 //! }
 //! ```

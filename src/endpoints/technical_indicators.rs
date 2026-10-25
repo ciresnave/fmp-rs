@@ -696,7 +696,7 @@ mod tests {
         // RSI should be between 0 and 100
         for point in rsi_data.iter().take(5) {
             if let Some(rsi) = point.rsi {
-                assert!(rsi >= 0.0 && rsi <= 100.0);
+                assert!((0.0..=100.0).contains(&rsi));
             }
         }
     }
@@ -837,9 +837,8 @@ mod tests {
             .get_rsi("INVALIDSTOCK123", 14, None, None)
             .await;
         // Should return empty or error
-        match result {
-            Ok(data) => assert!(data.is_empty()),
-            Err(_) => {} // Error is acceptable for invalid symbol
+        if let Ok(data) = result {
+            assert!(data.is_empty())
         }
     }
 
@@ -922,7 +921,7 @@ mod tests {
         // ADX should be between 0 and 100
         for point in adx_data.iter().take(5) {
             if let Some(adx) = point.adx {
-                assert!(adx >= 0.0 && adx <= 100.0);
+                assert!((0.0..=100.0).contains(&adx));
             }
         }
     }
@@ -954,7 +953,7 @@ mod tests {
         // Williams %R should be between -100 and 0
         for point in wr_data.iter().take(5) {
             if let Some(wr) = point.williams_r {
-                assert!(wr >= -100.0 && wr <= 0.0);
+                assert!((-100.0..=0.0).contains(&wr));
             }
         }
     }
@@ -992,10 +991,10 @@ mod tests {
         // Aroon indicators should be between 0 and 100
         for point in aroon_data.iter().take(5) {
             if let Some(aroon_up) = point.aroon_up {
-                assert!(aroon_up >= 0.0 && aroon_up <= 100.0);
+                assert!((0.0..=100.0).contains(&aroon_up));
             }
             if let Some(aroon_down) = point.aroon_down {
-                assert!(aroon_down >= 0.0 && aroon_down <= 100.0);
+                assert!((0.0..=100.0).contains(&aroon_down));
             }
         }
     }
@@ -1076,19 +1075,15 @@ mod tests {
             .get_sma("AAPL", 20, Some("invalid-date"), Some("2024-01-31"))
             .await;
         // Should handle gracefully
-        match result {
-            Ok(_) => {}  // API might ignore invalid dates
-            Err(_) => {} // Or return an error
-        }
+        let _ = result;
 
         // Test end date before start date
         let result = client
             .technical_indicators()
             .get_sma("AAPL", 20, Some("2024-01-31"), Some("2024-01-01"))
             .await;
-        match result {
-            Ok(data) => assert!(data.is_empty()), // Should return empty
-            Err(_) => {}                          // Or return an error
+        if let Ok(data) = result {
+            assert!(data.is_empty())
         }
     }
 
@@ -1109,10 +1104,10 @@ mod tests {
             // Stochastic values should be between 0 and 100
             for point in stoch_data.iter().take(5) {
                 if let Some(k) = point.slow_k {
-                    assert!(k >= 0.0 && k <= 100.0);
+                    assert!((0.0..=100.0).contains(&k));
                 }
                 if let Some(d) = point.slow_d {
-                    assert!(d >= 0.0 && d <= 100.0);
+                    assert!((0.0..=100.0).contains(&d));
                 }
             }
         }

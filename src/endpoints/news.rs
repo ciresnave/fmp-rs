@@ -1,8 +1,8 @@
 //! News endpoints
 
-use crate::Result;
 use crate::client::FmpClient;
 use crate::models::news::{NewsArticle, PressRelease};
+use crate::Result;
 use serde::Serialize;
 
 /// News API endpoints
@@ -242,7 +242,7 @@ mod tests {
     fn test_new() {
         let client = FmpClient::builder().api_key("test_key").build().unwrap();
         let news = News::new(client);
-        assert!(std::ptr::addr_of!(news.client).is_null() == false);
+        assert!(!std::ptr::addr_of!(news.client).is_null());
     }
 
     #[tokio::test]
@@ -310,7 +310,7 @@ mod tests {
             assert!(news.iter().any(|n| {
                 n.symbol
                     .as_ref()
-                    .map_or(false, |s| s == "AAPL" || s == "MSFT")
+                    .is_some_and(|s| s == "AAPL" || s == "MSFT")
             }));
         }
     }
@@ -324,8 +324,8 @@ mod tests {
         let news = result.unwrap();
         assert!(!news.is_empty());
         // General news should have titles and dates
-        assert!(news[0].title.len() > 0);
-        assert!(news[0].published_date.len() > 0);
+        assert!(!news[0].title.is_empty());
+        assert!(!news[0].published_date.is_empty());
     }
 
     // Edge case tests
@@ -338,9 +338,8 @@ mod tests {
             .get_symbol_news("INVALID_SYMBOL_12345", Some(0), Some(5))
             .await;
         // Should handle gracefully - either empty result or error
-        match result {
-            Ok(news) => assert!(news.is_empty()),
-            Err(_) => {} // API may return error for invalid symbols
+        if let Ok(news) = result {
+            assert!(news.is_empty())
         }
     }
 
@@ -351,9 +350,8 @@ mod tests {
 
         // Test large page number
         let result = client.news().get_stock_news(Some(1000), Some(5)).await;
-        match result {
-            Ok(news) => assert!(news.is_empty()), // Should return empty for high page numbers
-            Err(_) => {}                          // API may return error
+        if let Ok(news) = result {
+            assert!(news.is_empty())
         }
 
         // Test large limit
@@ -367,9 +365,8 @@ mod tests {
         let client = FmpClient::new().unwrap();
         let result = client.news().get_symbols_news(&[], Some(0), Some(5)).await;
         // Should handle empty symbols array
-        match result {
-            Ok(news) => assert!(news.is_empty()),
-            Err(_) => {} // API may return error for empty input
+        if let Ok(news) = result {
+            assert!(news.is_empty())
         }
     }
 
@@ -388,7 +385,7 @@ mod tests {
             assert!(news.iter().any(|n| {
                 n.symbol
                     .as_ref()
-                    .map_or(false, |s| s == "AAPL" || s == "MSFT")
+                    .is_some_and(|s| s == "AAPL" || s == "MSFT")
             }));
         }
     }
@@ -400,9 +397,8 @@ mod tests {
 
         // Test zero limit
         let result = client.news().get_stock_news(Some(0), Some(0)).await;
-        match result {
-            Ok(news) => assert!(news.is_empty()),
-            Err(_) => {} // API may return error for zero limit
+        if let Ok(news) = result {
+            assert!(news.is_empty())
         }
     }
 
@@ -415,9 +411,8 @@ mod tests {
             .get_press_releases("INVALID_SYMBOL_12345", Some(0), Some(5))
             .await;
         // Should handle invalid symbols gracefully
-        match result {
-            Ok(releases) => assert!(releases.is_empty()),
-            Err(_) => {} // API may return error for invalid symbols
+        if let Ok(releases) = result {
+            assert!(releases.is_empty())
         }
     }
 

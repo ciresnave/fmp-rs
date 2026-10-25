@@ -230,7 +230,7 @@ mod tests {
         assert!(!quotes.is_empty());
         // Verify at least some NASDAQ stocks are returned
         let has_nasdaq = quotes.iter().any(|q| q.exchange.contains("NASDAQ"));
-        assert!(has_nasdaq || quotes.len() > 0); // Either has NASDAQ or has some data
+        assert!(has_nasdaq || !quotes.is_empty()); // Either has NASDAQ or has some data
     }
 
     #[tokio::test]
@@ -254,11 +254,9 @@ mod tests {
         let quotes = result.unwrap();
         assert!(!quotes.is_empty());
         // Crypto symbols often contain USD suffix
-        assert!(
-            quotes
-                .iter()
-                .any(|q| q.symbol.contains("USD") || q.symbol.contains("BTC"))
-        );
+        assert!(quotes
+            .iter()
+            .any(|q| q.symbol.contains("USD") || q.symbol.contains("BTC")));
     }
 
     #[tokio::test]
@@ -270,11 +268,9 @@ mod tests {
         let quotes = result.unwrap();
         assert!(!quotes.is_empty());
         // Forex pairs typically have 6-7 character symbols like EURUSD
-        assert!(
-            quotes
-                .iter()
-                .any(|q| q.symbol.len() >= 6 && q.symbol.len() <= 8)
-        );
+        assert!(quotes
+            .iter()
+            .any(|q| q.symbol.len() >= 6 && q.symbol.len() <= 8));
     }
 
     // Edge case tests
@@ -284,9 +280,8 @@ mod tests {
         let client = FmpClient::new().unwrap();
         let result = client.quote().get_quote("INVALID_SYMBOL_12345").await;
         // Should handle gracefully - either empty result or error
-        match result {
-            Ok(quotes) => assert!(quotes.is_empty() || quotes[0].symbol == "INVALID_SYMBOL_12345"),
-            Err(_) => {} // API may return error for invalid symbols
+        if let Ok(quotes) = result {
+            assert!(quotes.is_empty() || quotes[0].symbol == "INVALID_SYMBOL_12345")
         }
     }
 
@@ -302,11 +297,9 @@ mod tests {
         let quotes = result.unwrap();
         // Should return quotes for valid symbols, may skip invalid ones
         assert!(quotes.len() >= 2);
-        assert!(
-            quotes
-                .iter()
-                .any(|q| q.symbol == "AAPL" || q.symbol == "MSFT")
-        );
+        assert!(quotes
+            .iter()
+            .any(|q| q.symbol == "AAPL" || q.symbol == "MSFT"));
     }
 
     #[tokio::test]
@@ -315,9 +308,8 @@ mod tests {
         let client = FmpClient::new().unwrap();
         let result = client.quote().get_quote_batch(&[]).await;
         // Should handle empty input gracefully
-        match result {
-            Ok(quotes) => assert!(quotes.is_empty()),
-            Err(_) => {} // API may return error for empty input
+        if let Ok(quotes) = result {
+            assert!(quotes.is_empty())
         }
     }
 
@@ -327,9 +319,8 @@ mod tests {
         let client = FmpClient::new().unwrap();
         let result = client.quote().get_exchange_quotes("INVALID_EXCHANGE").await;
         // Should handle gracefully
-        match result {
-            Ok(quotes) => assert!(quotes.is_empty()),
-            Err(_) => {} // API may return error for invalid exchange
+        if let Ok(quotes) = result {
+            assert!(quotes.is_empty())
         }
     }
 
