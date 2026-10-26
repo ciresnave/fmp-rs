@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.8] - 2026-10-26
+
+### Changed
+- `docs/PATENT-SWEEP.md`: read the two unread Amazon ML-training siblings (US10339465B2, US9672474B2), both clear. Still PARTIAL. No code change.
+
 ## [0.1.7] - 2026-10-25
 
 ### Changed
