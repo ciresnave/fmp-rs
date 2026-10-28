@@ -16,8 +16,7 @@
 //! 2. `profile AAPL (typed)`: `OK, 1 item`
 //! 3. `cot list (typed)`: `OK, N items` (N > 0), or `ERR ...` if the typed model is wrong
 //! 4. `cot report KC (typed)`: `OK, N items`, or `ERR ...` (params symbol/from/to unconfirmed)
-//! 5. `etf list via crate (/stable/api/v3 path)`: expected `ERR` (the crate joins a
-//!    legacy `/api/v3` path onto the `/stable` base; a 404 or 403 confirms ~25 endpoints are dead)
+//! 5. `insider latest (typed)`: `OK, N items` (free tier)
 //! 6. `legacy /api/v3/quote/AAPL (raw)`: `HTTP 403` or similar (legacy endpoints are
 //!    closed to keys created after 2025-08-31); `HTTP 200` would mean legacy still works
 //!
@@ -128,8 +127,11 @@ async fn main() -> ExitCode {
     ) as u8;
     ok += report(
         5,
-        "etf list via crate (/stable/api/v3 path)",
-        client.etf().get_etf_list().await,
+        "insider latest (typed)",
+        client
+            .insider_trades()
+            .get_latest_insider_trades(Some(3))
+            .await,
         &key,
     ) as u8;
 
@@ -155,6 +157,6 @@ async fn main() -> ExitCode {
         ),
     }
 
-    println!("typed calls OK: {ok}/5 (call 5 is expected to fail)");
+    println!("typed calls OK: {ok}/5 (calls 3 and 4 are paid-tier: PlanRestricted on a free key)");
     ExitCode::SUCCESS
 }
