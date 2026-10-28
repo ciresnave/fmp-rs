@@ -8,9 +8,9 @@ pub type Result<T> = std::result::Result<T, Error>;
 /// Errors that can occur when using the FMP client
 #[derive(Debug, Error)]
 pub enum Error {
-    /// Error from the HTTP client
+    /// Error from the HTTP client (the request URL is stripped: it carries the `apikey` query parameter)
     #[error("HTTP request failed: {0}")]
-    Http(#[from] reqwest::Error),
+    Http(reqwest::Error),
 
     /// Error parsing JSON response
     #[error("Failed to parse JSON: {0}")]
@@ -73,5 +73,29 @@ impl Error {
     pub fn is_not_found(&self) -> bool {
         matches!(self, Error::NotFound(_))
             || matches!(self, Error::Api { status, .. } if *status == 404)
+    }
+}
+
+impl From<reqwest::Error> for Error {
+    fn from(error: reqwest::Error) -> Self {
+        // reqwest's Display includes the full URL, and ours holds `apikey=...`
+        Error::Http(error.without_url())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn http_error_does_not_leak_api_key() {
+        let reqwest_error = reqwest::Client::new()
+            .get("http://127.0.0.1:1/quote?apikey=SECRETKEY")
+            .send()
+            .await
+            .unwrap_err();
+        assert!(reqwest_error.to_string().contains("SECRETKEY"));
+        let message = Error::from(reqwest_error).to_string();
+        assert!(!message.contains("SECRETKEY"), "{message}");
     }
 }
