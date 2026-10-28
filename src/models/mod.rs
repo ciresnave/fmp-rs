@@ -12,7 +12,6 @@ pub mod cot;
 pub mod crypto;
 pub mod economics;
 pub mod esg;
-pub mod etf;
 pub mod financials;
 pub mod indexes;
 pub mod institutional;

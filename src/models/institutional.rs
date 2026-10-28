@@ -2,44 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Institutional holder
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct InstitutionalHolder {
-    pub holder: String,
-    pub shares: i64,
-    pub date_reported: String,
-    pub change: Option<i64>,
-    pub change_percent: Option<f64>,
-}
-
-/// Institutional portfolio composition
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct InstitutionalPortfolioComposition {
-    pub cik: String,
-    pub date: String,
-    pub filing_date: Option<String>,
-    pub accepted_date: Option<String>,
-    pub symbol: String,
-    pub company_name: Option<String>,
-    pub shares: i64,
-    pub value: f64,
-    pub change: Option<i64>,
-    pub change_percent: Option<f64>,
-    pub weight_percent: Option<f64>,
-}
-
-/// Institutional portfolio date (for RSS feed)
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct InstitutionalPortfolioDate {
-    pub cik: String,
-    pub year: i32,
-    pub quarter: i32,
-}
-
-/// Insider trading transaction
+/// Insider trading transaction (the live `/stable/insider-trading/latest` shape)
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct InsiderTrade {
@@ -52,34 +15,25 @@ pub struct InsiderTrade {
     pub securities_transacted: f64,
     pub price: f64,
     pub security_name: String,
+    #[serde(rename = "url", alias = "link")]
     pub link: Option<String>,
+    #[serde(rename = "acquisitionOrDisposition", alias = "acquiredDisposed")]
     pub acquired_disposed: Option<String>,
+    pub company_cik: Option<String>,
+    pub reporting_cik: Option<String>,
+    pub direct_or_indirect: Option<String>,
+    pub form_type: Option<String>,
+    pub type_of_owner: Option<String>,
 }
 
-/// Insider trading RSS feed item
+/// A listed company for a CIK (`/stable/search-cik`)
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub struct InsiderTradingRss {
-    pub symbol: String,
-    pub filing_date: String,
-    pub company_name: Option<String>,
-}
-
-/// Fail to Deliver (FTD) data
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct FailToDeliver {
-    pub symbol: String,
-    pub date: String,
-    pub quantity: i64,
-    pub price: f64,
-    pub cusip: Option<String>,
-}
-
-/// CIK mapping (CIK to company)
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct CikMapper {
+pub struct CikSearchResult {
     pub cik: String,
-    pub name: String,
+    pub company_name: String,
+    pub symbol: String,
+    pub currency: Option<String>,
+    pub exchange: Option<String>,
+    pub exchange_full_name: Option<String>,
 }

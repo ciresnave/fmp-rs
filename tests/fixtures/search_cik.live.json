@@ -1,0 +1,18 @@
+[
+  {
+    "cik": "0001067983",
+    "companyName": "Berkshire Hathaway Inc.",
+    "currency": "USD",
+    "exchange": "NYSE",
+    "exchangeFullName": "New York Stock Exchange",
+    "symbol": "BRK-A"
+  },
+  {
+    "cik": "0001067983",
+    "companyName": "Berkshire Hathaway Inc.",
+    "currency": "USD",
+    "exchange": "NYSE",
+    "exchangeFullName": "New York Stock Exchange",
+    "symbol": "BRK-B"
+  }
+]

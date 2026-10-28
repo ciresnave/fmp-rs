@@ -88,16 +88,71 @@ async fn http_402_is_a_typed_plan_restricted_error() {
 }
 
 #[tokio::test]
-async fn legacy_path_endpoints_build_a_url_and_send_the_key() {
+async fn paid_stable_endpoints_hit_their_routes_and_surface_402() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
-        .and(path("/api/v3/etf/list"))
+        .and(path("/etf/holdings"))
+        .and(query_param("symbol", "SPY"))
         .and(query_param("apikey", "test_key"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!([])))
+        .respond_with(ResponseTemplate::new(402).set_body_string("Restricted Endpoint"))
         .expect(1)
         .mount(&server)
         .await;
 
-    let list = client(&server).await.etf().get_etf_list().await.unwrap();
-    assert!(list.is_empty());
+    let err = client(&server)
+        .await
+        .etf()
+        .get_etf_holdings("SPY")
+        .await
+        .unwrap_err();
+    assert!(err.is_plan_restricted(), "got {err:?}");
+}
+
+#[tokio::test]
+async fn insider_latest_parses_the_live_shape() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/insider-trading/latest"))
+        .and(query_param("limit", "3"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(fixture("insider_latest.live.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let trades = client(&server)
+        .await
+        .insider_trades()
+        .get_latest_insider_trades(Some(3))
+        .await
+        .unwrap();
+    assert_eq!(trades.len(), 3);
+    assert_eq!(trades[0].symbol, "FLGT");
+    assert_eq!(trades[0].acquired_disposed.as_deref(), Some("D"));
+    assert!(trades[0]
+        .link
+        .as_deref()
+        .unwrap()
+        .starts_with("https://www.sec.gov/"));
+}
+
+#[tokio::test]
+async fn search_cik_parses_the_live_shape() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/search-cik"))
+        .and(query_param("cik", "0001067983"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(fixture("search_cik.live.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let rows = client(&server)
+        .await
+        .institutional()
+        .search_cik("0001067983")
+        .await
+        .unwrap();
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[1].symbol, "BRK-B");
+    assert_eq!(rows[0].company_name, "Berkshire Hathaway Inc.");
 }

@@ -132,27 +132,6 @@ impl FmpClient {
         format!("{}/{}", self.inner.base_url, path.trim_start_matches('/'))
     }
 
-    /// Execute a GET request. `url` may be a full URL or a path (with optional query
-    /// string) relative to the base URL; the API key is always attached.
-    pub(crate) async fn get<T>(&self, url: &str) -> Result<T>
-    where
-        T: serde::de::DeserializeOwned,
-    {
-        let url = if url.starts_with("http://") || url.starts_with("https://") {
-            url.to_string()
-        } else {
-            self.build_url(url)
-        };
-        let response = self
-            .inner
-            .http_client
-            .get(&url)
-            .query(&[("apikey", self.api_key())])
-            .send()
-            .await?;
-        self.handle_response(response).await
-    }
-
     /// Execute a GET request with query parameters
     pub(crate) async fn get_with_query<T, Q>(&self, url: &str, query: &Q) -> Result<T>
     where
@@ -161,6 +140,16 @@ impl FmpClient {
     {
         let response = self.inner.http_client.get(url).query(query).send().await?;
         self.handle_response(response).await
+    }
+
+    /// GET `path` on the `/stable` base with `params` and the API key as query parameters.
+    pub(crate) async fn get_stable<T>(&self, path: &str, params: &[(&str, &str)]) -> Result<T>
+    where
+        T: serde::de::DeserializeOwned,
+    {
+        let mut query = params.to_vec();
+        query.push(("apikey", self.api_key()));
+        self.get_with_query(&self.build_url(path), &query).await
     }
 
     /// Handle the HTTP response

@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-10-28
+
+Breaking (pre-1.0). Moves the legacy `/api/v3`/`/api/v4` endpoints (all HTTP 403 live) to `/stable`, from the `stable_probe` run (free-tier key).
+
+### Changed
+- `insider_trades().get_insider_trading` -> `/stable/insider-trading/search` (paid plans; 402 on free). `get_insider_trading_rss` is replaced by `get_latest_insider_trades` -> `/stable/insider-trading/latest` (free tier, live fixture), returning `InsiderTrade` (now the live shape: `url`, `acquisitionOrDisposition`, plus CIK/form/owner fields).
+- `etf()` and the 13F endpoints of `institutional()` now call their `/stable` routes. All are paid-plan only (402 on free, so the routes exist; returned as `Error::PlanRestricted`). No response is recorded, so they return `Vec<serde_json::Value>` instead of typed models that could be wrong. 13F methods take `year` and `quarter`.
+
+### Added
+- `institutional().search_cik(cik)` -> `/stable/search-cik` (free tier, live fixture, `CikSearchResult`); `get_holder_performance_summary`, `get_symbol_positions_summary`, `get_latest_institutional_filings`, `get_cik_list`.
+- Fixtures `insider_latest.live.json`, `search_cik.live.json`; tests in `tests/live_shapes.rs`.
+
+### Removed
+- `etf()`: `search_etf`, `get_etf_holder` (no `/stable` counterpart; `etf/holdings` covers the data). `institutional()`: `get_fail_to_deliver` (404 on `/stable`), `get_cik_mapper`, `get_portfolio_composition`, `get_institutional_holdings_rss` (replaced above). Models `EtfHolding`, `EtfInfo`, `SectorWeighting`, `CountryWeighting`, `EtfHolder`, `EtfSearchResult`, `EtfListItem`, `InstitutionalHolder`, `InstitutionalPortfolioComposition`, `InstitutionalPortfolioDate`, `InsiderTradingRss`, `FailToDeliver`, `CikMapper`; `FmpClient`'s bare-path `get`.
+- 29 live-key `#[ignore]` tests that targeted the dead endpoints.
+
 ## [0.2.1] - 2026-10-28
 
 ### Added
