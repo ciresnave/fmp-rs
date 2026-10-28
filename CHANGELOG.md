@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-10-28
+
+### Added
+- `examples/stable_probe.rs`: one read-only GET per candidate `/stable` replacement for the dead legacy `/api/v3` and `/api/v4` endpoints (16 requests); prints status and field shapes only, and with an output directory saves 2xx bodies (arrays cut to 3 rows) as candidate fixtures. Candidate paths are unverified guesses until it runs.
+
 ## [0.2.0] - 2026-10-28
 
 Breaking (pre-1.0): fixes from the first live run against `/stable` (free-tier key); 0 of 5 typed calls parsed before this.
