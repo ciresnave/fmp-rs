@@ -1,4 +1,4 @@
-# Patent sweep: fmp-rs 0.1.8 (library code swept @ dd1b628; src/ unchanged on main through 91c94e0) - PARTIAL
+# Patent sweep: fmp-rs 0.1.9 (library code swept @ dd1b628; src/ unchanged on main through 91c94e0) - PARTIAL
 
 Date: 2026-10-25; Run by: fmp-rs lane, Claude Sonnet 5.5; Method: AI-assisted search and read; NOT legal advice; NOT a freedom-to-operate opinion.
 
@@ -32,6 +32,7 @@ rows. Ideas 1, 2, 4, 5 are still thinly searched (see "Coverage gaps"); idea 5 g
 | 4 | `"memory budget" backpressure streaming records chunk processor` (second run) | 1 (OpenAI matrix-multiplication, irrelevant) |
 | 3 | `"minimum interval" between successive requests client throttle api rate limit` (second run) | 18; Amazon streaming-data family; Kaseya US20250094286A1 (same family as row 3, not read); none read beyond title |
 | 5 | `"bypass" OR "skip" cache "bulk" OR "streaming" request "uniform resource locator" OR "endpoint" client api response not cached` (third run) | 46695; Citrix/Plamondon proxy-cache families (freshness, prefetch, revalidation); none read beyond title; none about a client library skipping its cache by path |
+| 5 | `"cache" "bulk" "streaming" "not cached" "path" "client" "api"` (fifth run, 2026-10-26) | 16; Cisco information-centric networking, Akamai transcoding (US10595059B2), HBO image service, Twilio media, Yottaa, Intel prefetch; none read beyond title; none about a client library skipping its cache by path |
 
 ## Hits
 | # | patent | title | assignee | status (Google Patents, not the official record) | claims read | overlap | our difference | verdict |
@@ -55,10 +56,10 @@ rows. Ideas 1, 2, 4, 5 are still thinly searched (see "Coverage gaps"); idea 5 g
 
 ## Coverage gaps (the reason this is PARTIAL)
 - Ideas 1, 2, 4: each now has 3-4 queries, but most top hits were judged by title/snippet only (CDN, Splunk, Level 3, Seven Networks families); only the closest were read.
-- Idea 5 (skip cache for bulk/streaming paths): one query; top hits (Citrix proxy caches) judged by title only.
+- Idea 5 (skip cache for bulk/streaming paths): two queries; top hits (Citrix proxy caches) judged by title only.
 - Idea 3: the `token bucket` query returned 0 results.
 - US only; no EP / WIPO search.
-- Next: a second idea-5 query and read its closest hits, then drop the PARTIAL label only if the PM accepts the remaining gaps.
+- Next: re-query ideas 1, 2, 4 (title-only hits, numbers not recorded), then drop the PARTIAL label only if the PM accepts the remaining gaps.
 
 ## Needs review (to the PM)
 No overlap found on any independent claim read. Row 5 (Oracle, pending) is the one to watch. Nothing is `needs-review` today,
