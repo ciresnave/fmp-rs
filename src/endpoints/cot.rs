@@ -1,4 +1,7 @@
 //! Commitment of Traders (COT) endpoints
+//!
+//! Paid plans only: on the free tier FMP answers HTTP 402 "Restricted Endpoint"
+//! (live-checked 2026-10-28), which this crate returns as [`crate::Error::PlanRestricted`].
 
 use crate::{
     client::FmpClient,

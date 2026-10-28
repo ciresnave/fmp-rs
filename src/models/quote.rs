@@ -9,6 +9,7 @@ pub struct StockQuote {
     pub symbol: String,
     pub name: String,
     pub price: f64,
+    #[serde(rename = "changePercentage", alias = "changesPercentage")]
     pub changes_percentage: f64,
     pub change: f64,
     pub day_low: f64,
@@ -20,7 +21,7 @@ pub struct StockQuote {
     pub price_avg200: f64,
     pub exchange: String,
     pub volume: i64,
-    pub avg_volume: i64,
+    pub avg_volume: Option<i64>,
     pub open: f64,
     pub previous_close: f64,
     pub eps: Option<f64>,
