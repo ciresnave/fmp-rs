@@ -20,6 +20,11 @@ pub enum Error {
     #[error("API error: {message} (status: {status})")]
     Api { status: u16, message: String },
 
+    /// The endpoint is not available on the caller's subscription plan (HTTP 402,
+    /// "Restricted Endpoint"). Upgrading the plan is the only fix; retrying will not help.
+    #[error("Endpoint not available on your FMP subscription plan: {message} (status: 402)")]
+    PlanRestricted { message: String },
+
     /// Missing API key
     #[error("API key not found. Please set FMP_API_KEY environment variable")]
     MissingApiKey,
@@ -61,6 +66,11 @@ impl Error {
     /// Create a new custom error
     pub fn custom(message: impl Into<String>) -> Self {
         Self::Custom(message.into())
+    }
+
+    /// Check if this endpoint is restricted by the subscription plan
+    pub fn is_plan_restricted(&self) -> bool {
+        matches!(self, Error::PlanRestricted { .. })
     }
 
     /// Check if this is a rate limit error

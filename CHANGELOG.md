@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-10-28
+
+Breaking (pre-1.0): fixes from the first live run against `/stable` (free-tier key); 0 of 5 typed calls parsed before this.
+
+### Fixed
+- `StockQuote` parses the live shape: wire name `changePercentage` (old `changesPercentage` still accepted); `avg_volume` is now `Option<i64>` (the live quote has no `avgVolume`).
+- `CompanyProfile` parses the live shape: `averageVolume`, `marketCap`, `lastDividend`, `change`, `exchangeFullName`/`exchange` (old names still accepted for the first four); `dcf` and `dcf_diff` are now `Option<f64>`; adds `change_percentage` and `volume`.
+- Endpoints that pass a bare path to the client (`etf`, `insider_trades`, `institutional`, ...) failed with "builder error" and sent no API key; the path is now joined to the base URL and the key attached. They still target dead legacy `/api/v3`/`/api/v4` paths (HTTP 403 live) and are not yet fixed or removed.
+
+### Added
+- `Error::PlanRestricted` and `Error::is_plan_restricted()` for HTTP 402 "Restricted Endpoint". COT endpoints are paid-tier only (documented).
+- Recorded AAPL quote and profile fixtures and `tests/live_shapes.rs`.
+
 ## [0.1.11] - 2026-10-28
 
 ### Added

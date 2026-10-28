@@ -132,13 +132,24 @@ impl FmpClient {
         format!("{}/{}", self.inner.base_url, path.trim_start_matches('/'))
     }
 
-    /// Execute a GET request
-    #[allow(dead_code)]
+    /// Execute a GET request. `url` may be a full URL or a path (with optional query
+    /// string) relative to the base URL; the API key is always attached.
     pub(crate) async fn get<T>(&self, url: &str) -> Result<T>
     where
         T: serde::de::DeserializeOwned,
     {
-        let response = self.inner.http_client.get(url).send().await?;
+        let url = if url.starts_with("http://") || url.starts_with("https://") {
+            url.to_string()
+        } else {
+            self.build_url(url)
+        };
+        let response = self
+            .inner
+            .http_client
+            .get(&url)
+            .query(&[("apikey", self.api_key())])
+            .send()
+            .await?;
         self.handle_response(response).await
     }
 
@@ -171,6 +182,9 @@ impl FmpClient {
 
             match status_code {
                 429 => Err(Error::RateLimitExceeded),
+                402 => Err(Error::PlanRestricted {
+                    message: error_text,
+                }),
                 404 => Err(Error::NotFound(error_text)),
                 _ => Err(Error::api(status_code, error_text)),
             }

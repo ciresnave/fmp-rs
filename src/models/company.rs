@@ -9,17 +9,25 @@ pub struct CompanyProfile {
     pub symbol: String,
     pub price: f64,
     pub beta: f64,
+    #[serde(rename = "averageVolume", alias = "volAvg")]
     pub vol_avg: i64,
+    #[serde(rename = "marketCap", alias = "mktCap")]
     pub mkt_cap: i64,
+    #[serde(rename = "lastDividend", alias = "lastDiv")]
     pub last_div: f64,
     pub range: String,
+    #[serde(rename = "change", alias = "changes")]
     pub changes: f64,
+    pub change_percentage: Option<f64>,
+    pub volume: Option<i64>,
     pub company_name: String,
     pub currency: String,
     pub cik: String,
     pub isin: String,
     pub cusip: String,
+    #[serde(rename = "exchangeFullName")]
     pub exchange: String,
+    #[serde(rename = "exchange", alias = "exchangeShortName")]
     pub exchange_short_name: String,
     pub industry: String,
     pub website: String,
@@ -33,8 +41,8 @@ pub struct CompanyProfile {
     pub city: String,
     pub state: String,
     pub zip: String,
-    pub dcf_diff: f64,
-    pub dcf: f64,
+    pub dcf_diff: Option<f64>,
+    pub dcf: Option<f64>,
     pub image: String,
     pub ipo_date: String,
     pub default_image: bool,
