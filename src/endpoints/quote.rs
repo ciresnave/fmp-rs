@@ -173,168 +173,239 @@ impl Quote {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::{json, Value};
+    use wiremock::matchers::{method, path, query_param};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    async fn client(server: &MockServer) -> FmpClient {
+        FmpClient::builder()
+            .api_key("test_key")
+            .base_url(server.uri())
+            .build()
+            .unwrap()
+    }
+
+    /// SYNTHETIC body (not a recording): same field set as tests/fixtures/quote_aapl.live.json.
+    fn full_quote(symbol: &str, exchange: &str) -> Value {
+        json!({
+            "symbol": symbol, "name": symbol, "price": 100.0,
+            "changePercentage": 1.5, "change": 1.5, "volume": 1000,
+            "dayLow": 99.0, "dayHigh": 101.0, "yearHigh": 120.0, "yearLow": 80.0,
+            "marketCap": 1000000, "priceAvg50": 98.0, "priceAvg200": 95.0,
+            "exchange": exchange, "open": 99.5, "previousClose": 98.5,
+            "timestamp": 1793213533
+        })
+    }
+
+    async fn serve(server: &MockServer, p: &str, body: Value) {
+        Mock::given(method("GET"))
+            .and(path(p))
+            .respond_with(ResponseTemplate::new(200).set_body_json(body))
+            .expect(1)
+            .mount(server)
+            .await;
+    }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_get_quote() {
-        let client = FmpClient::new().unwrap();
-        let result = client.quote().get_quote("AAPL").await;
-        assert!(result.is_ok());
-        let quotes = result.unwrap();
-        assert!(!quotes.is_empty());
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/quote"))
+            .and(query_param("symbol", "AAPL"))
+            .and(query_param("apikey", "test_key"))
+            .respond_with(
+                ResponseTemplate::new(200).set_body_json(json!([full_quote("AAPL", "NASDAQ")])),
+            )
+            .expect(1)
+            .mount(&server)
+            .await;
+        let quotes = client(&server).await.quote().get_quote("AAPL").await.unwrap();
+        assert_eq!(quotes.len(), 1);
         assert_eq!(quotes[0].symbol, "AAPL");
     }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_get_quote_batch() {
-        let client = FmpClient::new().unwrap();
-        let result = client
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/batch-quote"))
+            .and(query_param("symbols", "AAPL,MSFT,GOOGL"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(json!([
+                full_quote("AAPL", "NASDAQ"),
+                full_quote("MSFT", "NASDAQ"),
+                full_quote("GOOGL", "NASDAQ")
+            ])))
+            .expect(1)
+            .mount(&server)
+            .await;
+        let quotes = client(&server)
+            .await
             .quote()
             .get_quote_batch(&["AAPL", "MSFT", "GOOGL"])
-            .await;
-        assert!(result.is_ok());
-        let quotes = result.unwrap();
+            .await
+            .unwrap();
         assert_eq!(quotes.len(), 3);
     }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_get_quote_short() {
-        let client = FmpClient::new().unwrap();
-        let result = client.quote().get_quote_short("AAPL").await;
-        assert!(result.is_ok());
-        let quotes = result.unwrap();
-        assert!(!quotes.is_empty());
+        let server = MockServer::start().await;
+        serve(
+            &server,
+            "/quote-short",
+            json!([{"symbol": "AAPL", "price": 344.35, "volume": 15515541}]),
+        )
+        .await;
+        let quotes = client(&server)
+            .await
+            .quote()
+            .get_quote_short("AAPL")
+            .await
+            .unwrap();
         assert_eq!(quotes[0].symbol, "AAPL");
+        assert_eq!(quotes[0].volume, 15515541);
     }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_get_price_change() {
-        let client = FmpClient::new().unwrap();
-        let result = client.quote().get_price_change("AAPL").await;
-        assert!(result.is_ok());
-        let changes = result.unwrap();
-        assert!(!changes.is_empty());
+        let server = MockServer::start().await;
+        serve(
+            &server,
+            "/stock-price-change",
+            json!([{"symbol": "AAPL", "1D": 1.5, "5D": 2.0, "ytd": 10.0, "1Y": 20.0, "max": 5000.0}]),
+        )
+        .await;
+        let changes = client(&server)
+            .await
+            .quote()
+            .get_price_change("AAPL")
+            .await
+            .unwrap();
         assert_eq!(changes[0].symbol, "AAPL");
+        assert_eq!(changes[0].one_day, Some(1.5));
+        assert_eq!(changes[0].year_to_date, Some(10.0));
     }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_get_exchange_quotes() {
-        let client = FmpClient::new().unwrap();
-        let result = client.quote().get_exchange_quotes("NASDAQ").await;
-        assert!(result.is_ok());
-        let quotes = result.unwrap();
-        assert!(!quotes.is_empty());
-        // Verify at least some NASDAQ stocks are returned
-        let has_nasdaq = quotes.iter().any(|q| q.exchange.contains("NASDAQ"));
-        assert!(has_nasdaq || !quotes.is_empty()); // Either has NASDAQ or has some data
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/batch-exchange-quote"))
+            .and(query_param("exchange", "NASDAQ"))
+            .respond_with(
+                ResponseTemplate::new(200).set_body_json(json!([full_quote("AAPL", "NASDAQ")])),
+            )
+            .expect(1)
+            .mount(&server)
+            .await;
+        let quotes = client(&server)
+            .await
+            .quote()
+            .get_exchange_quotes("NASDAQ")
+            .await
+            .unwrap();
+        assert!(quotes.iter().all(|q| q.exchange.contains("NASDAQ")));
     }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_get_all_etf_quotes() {
-        let client = FmpClient::new().unwrap();
-        let result = client.quote().get_all_etf_quotes().await;
-        assert!(result.is_ok());
-        let quotes = result.unwrap();
-        assert!(!quotes.is_empty());
-        // ETFs should have symbols ending in common ETF patterns
-        assert!(quotes.iter().any(|q| q.symbol.len() >= 3));
+        let server = MockServer::start().await;
+        serve(&server, "/batch-etf-quotes", json!([full_quote("SPY", "NYSE")])).await;
+        let quotes = client(&server).await.quote().get_all_etf_quotes().await.unwrap();
+        assert_eq!(quotes[0].symbol, "SPY");
     }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_get_all_crypto_quotes() {
-        let client = FmpClient::new().unwrap();
-        let result = client.quote().get_all_crypto_quotes().await;
-        assert!(result.is_ok());
-        let quotes = result.unwrap();
-        assert!(!quotes.is_empty());
-        // Crypto symbols often contain USD suffix
-        assert!(quotes
-            .iter()
-            .any(|q| q.symbol.contains("USD") || q.symbol.contains("BTC")));
+        let server = MockServer::start().await;
+        serve(&server, "/batch-crypto-quotes", json!([full_quote("BTCUSD", "CRYPTO")])).await;
+        let quotes = client(&server)
+            .await
+            .quote()
+            .get_all_crypto_quotes()
+            .await
+            .unwrap();
+        assert_eq!(quotes[0].symbol, "BTCUSD");
     }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_get_all_forex_quotes() {
-        let client = FmpClient::new().unwrap();
-        let result = client.quote().get_all_forex_quotes().await;
-        assert!(result.is_ok());
-        let quotes = result.unwrap();
-        assert!(!quotes.is_empty());
-        // Forex pairs typically have 6-7 character symbols like EURUSD
-        assert!(quotes
-            .iter()
-            .any(|q| q.symbol.len() >= 6 && q.symbol.len() <= 8));
-    }
-
-    // Edge case tests
-    #[tokio::test]
-    #[ignore = "requires FMP API key"]
-    async fn test_get_quote_invalid_symbol() {
-        let client = FmpClient::new().unwrap();
-        let result = client.quote().get_quote("INVALID_SYMBOL_12345").await;
-        // Should handle gracefully - either empty result or error
-        if let Ok(quotes) = result {
-            assert!(quotes.is_empty() || quotes[0].symbol == "INVALID_SYMBOL_12345")
-        }
+        let server = MockServer::start().await;
+        serve(&server, "/batch-forex-quotes", json!([full_quote("EURUSD", "FOREX")])).await;
+        let quotes = client(&server)
+            .await
+            .quote()
+            .get_all_forex_quotes()
+            .await
+            .unwrap();
+        assert_eq!(quotes[0].symbol, "EURUSD");
     }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
+    async fn test_get_quote_invalid_symbol_returns_empty() {
+        let server = MockServer::start().await;
+        serve(&server, "/quote", json!([])).await;
+        let quotes = client(&server)
+            .await
+            .quote()
+            .get_quote("INVALID_SYMBOL_12345")
+            .await
+            .unwrap();
+        assert!(quotes.is_empty());
+    }
+
+    #[tokio::test]
     async fn test_get_quote_batch_mixed_valid_invalid() {
-        let client = FmpClient::new().unwrap();
-        let result = client
+        let server = MockServer::start().await;
+        serve(
+            &server,
+            "/batch-quote",
+            json!([full_quote("AAPL", "NASDAQ"), full_quote("MSFT", "NASDAQ")]),
+        )
+        .await;
+        let quotes = client(&server)
+            .await
             .quote()
             .get_quote_batch(&["AAPL", "INVALID_SYM", "MSFT"])
-            .await;
-        assert!(result.is_ok());
-        let quotes = result.unwrap();
-        // Should return quotes for valid symbols, may skip invalid ones
-        assert!(quotes.len() >= 2);
-        assert!(quotes
-            .iter()
-            .any(|q| q.symbol == "AAPL" || q.symbol == "MSFT"));
+            .await
+            .unwrap();
+        assert_eq!(quotes.len(), 2);
     }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_get_quote_batch_empty_array() {
-        let client = FmpClient::new().unwrap();
-        let result = client.quote().get_quote_batch(&[]).await;
-        // Should handle empty input gracefully
-        if let Ok(quotes) = result {
-            assert!(quotes.is_empty())
-        }
+        let server = MockServer::start().await;
+        serve(&server, "/batch-quote", json!([])).await;
+        let quotes = client(&server).await.quote().get_quote_batch(&[]).await.unwrap();
+        assert!(quotes.is_empty());
     }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_get_exchange_quotes_invalid_exchange() {
-        let client = FmpClient::new().unwrap();
-        let result = client.quote().get_exchange_quotes("INVALID_EXCHANGE").await;
-        // Should handle gracefully
-        if let Ok(quotes) = result {
-            assert!(quotes.is_empty())
-        }
+        let server = MockServer::start().await;
+        serve(&server, "/batch-exchange-quote", json!([])).await;
+        let quotes = client(&server)
+            .await
+            .quote()
+            .get_exchange_quotes("INVALID_EXCHANGE")
+            .await
+            .unwrap();
+        assert!(quotes.is_empty());
     }
 
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_get_quote_special_characters() {
-        let client = FmpClient::new().unwrap();
-        // Test symbol with special characters (common in some markets)
-        let result = client.quote().get_quote("BRK.A").await;
-        assert!(result.is_ok());
-        // BRK.A is a real symbol, should return data
-        let quotes = result.unwrap();
-        if !quotes.is_empty() {
-            assert_eq!(quotes[0].symbol, "BRK.A");
-        }
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/quote"))
+            .and(query_param("symbol", "BRK.A"))
+            .respond_with(
+                ResponseTemplate::new(200).set_body_json(json!([full_quote("BRK.A", "NYSE")])),
+            )
+            .expect(1)
+            .mount(&server)
+            .await;
+        let quotes = client(&server).await.quote().get_quote("BRK.A").await.unwrap();
+        assert_eq!(quotes[0].symbol, "BRK.A");
     }
 }
