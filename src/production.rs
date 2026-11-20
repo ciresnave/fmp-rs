@@ -40,7 +40,7 @@ pub struct PoolConfig {
     pub idle_timeout: Duration,
     /// Maximum connection lifetime
     pub max_lifetime: Duration,
-    /// Enable HTTP/2
+    /// Force HTTP/2 without negotiation (only for servers known to speak h2c/h2 directly)
     pub http2_prior_knowledge: bool,
 }
 
@@ -50,7 +50,7 @@ impl Default for PoolConfig {
             max_connections_per_host: 10,
             idle_timeout: Duration::from_secs(90),
             max_lifetime: Duration::from_secs(300),
-            http2_prior_knowledge: true,
+            http2_prior_knowledge: false,
         }
     }
 }
@@ -116,14 +116,17 @@ impl ProductionExecutor {
         retry_config: RetryConfig,
         timeout: Duration,
     ) -> Result<Self> {
-        let client = Client::builder()
+        let mut builder = Client::builder()
             .timeout(timeout)
             .pool_max_idle_per_host(pool_config.max_connections_per_host)
             .pool_idle_timeout(pool_config.idle_timeout)
-            .http2_prior_knowledge()
-            .user_agent("fmp-rs/1.0.0 (Production)")
+            .user_agent(concat!("fmp-rs/", env!("CARGO_PKG_VERSION"), " (Production)"))
             .gzip(true)
-            .brotli(true)
+            .brotli(true);
+        if pool_config.http2_prior_knowledge {
+            builder = builder.http2_prior_knowledge();
+        }
+        let client = builder
             .build()
             .map_err(|e| Error::Custom(format!("Failed to create HTTP client: {}", e)))?;
 
@@ -341,5 +344,45 @@ impl ProductionExecutor {
     /// Get the underlying HTTP client
     pub fn client(&self) -> &Client {
         &self.client
+    }
+}
+
+#[cfg(test)]
+mod ua_tests {
+    use super::*;
+    use wiremock::matchers::{header, method};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    fn executor(pool: PoolConfig) -> ProductionExecutor {
+        ProductionExecutor::new(
+            pool,
+            RateLimitConfig::default(),
+            RetryConfig::default(),
+            Duration::from_secs(5),
+        )
+        .unwrap()
+    }
+
+    #[tokio::test]
+    async fn user_agent_is_the_crate_version_and_http1_servers_work() {
+        let server = MockServer::start().await;
+        let ua = format!("fmp-rs/{} (Production)", env!("CARGO_PKG_VERSION"));
+        Mock::given(method("GET"))
+            .and(header("user-agent", ua.as_str()))
+            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!([1])))
+            .expect(1)
+            .mount(&server)
+            .await;
+        let ex = executor(PoolConfig::default());
+        let got: Vec<i32> = ex
+            .execute_request(ex.client().get(server.uri()))
+            .await
+            .unwrap();
+        assert_eq!(got, vec![1]);
+    }
+
+    #[test]
+    fn http2_prior_knowledge_is_off_by_default() {
+        assert!(!PoolConfig::default().http2_prior_knowledge);
     }
 }

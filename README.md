@@ -17,11 +17,7 @@ A **comprehensive, production-ready Rust wrapper** for the [Financial Modeling P
 
 ### 🏗️ Production-Grade Architecture
 - **⚡ Intelligent Caching** - Smart TTL strategies per endpoint
-- **🛡️ Advanced Retry Logic** - Exponential backoff with jitter  
-- **📊 Rate Limiting** - Token bucket algorithm (300 req/sec default)
-- **🔗 Connection Pooling** - Optimized HTTP/2 connections
 - **📈 Performance Monitoring** - Built-in metrics and health checks
-- **🧠 Memory Optimization** - Chunked bulk data processing
 
 ### � Developer Experience
 - **Zero Configuration** - Sensible defaults, full customization

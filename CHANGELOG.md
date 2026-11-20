@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] (version set by the PM at gate time)
+
+### Changed (behaviour)
+- `ProductionExecutor`: User-Agent is now `fmp-rs/<crate version> (Production)` (was a hard-coded `fmp-rs/1.0.0`); `PoolConfig::http2_prior_knowledge` now defaults to `false` and is only applied when set (it was forced on, which fails against HTTP/1.1 servers).
+
+### Documentation
+- README: removed the unmeasured retry/backoff, 300 req/s rate-limit, pooling and chunked-bulk claims (code unchanged).
+
+### Tests
+- `quote.rs`: 13 live-key `#[ignore]` tests replaced by wiremock tests with SYNTHETIC bodies (not shape verification; 0 recorded, 13 synthetic). 273 `#[ignore]` tests remain.
+
 ## [0.3.0] - 2026-10-28
 
 Breaking (pre-1.0). Moves the legacy `/api/v3`/`/api/v4` endpoints (all HTTP 403 live) to `/stable`, from the `stable_probe` run (free-tier key).
