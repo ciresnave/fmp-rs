@@ -158,16 +158,38 @@ impl CompanySearch {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
+    use wiremock::matchers::{method, path, query_param};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
+    /// SYNTHETIC body (not a recording): field set from CompanySearchResult.
     #[tokio::test]
-    #[ignore = "requires FMP API key"]
     async fn test_search() {
-        let client = FmpClient::new().unwrap();
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/search"))
+            .and(query_param("query", "Apple"))
+            .and(query_param("limit", "10"))
+            .and(query_param("apikey", "test_key"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(json!([{
+                "symbol": "AAPL", "name": "Apple Inc.", "currency": "USD",
+                "stockExchange": "NASDAQ Global Select", "exchangeShortName": "NASDAQ"
+            }])))
+            .expect(1)
+            .mount(&server)
+            .await;
+        let client = FmpClient::builder()
+            .api_key("test_key")
+            .base_url(server.uri())
+            .build()
+            .unwrap();
         let results = client
             .company_search()
             .search("Apple", Some(10), None)
-            .await;
-        assert!(results.is_ok());
+            .await
+            .unwrap();
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].symbol, "AAPL");
     }
 
     #[test]
