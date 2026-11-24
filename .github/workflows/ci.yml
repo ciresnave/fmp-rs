@@ -61,4 +61,4 @@ jobs:
   portfolio:
     permissions:
       contents: read
-    uses: ciresnave/coderipper/.github/workflows/portfolio.yml@c665210ad0972cf3ddb7bc81bdd7800c3248a938 # coderipper commit c665210 (its portfolio.yml pins CodeRipper 0.8.19)
+    uses: ciresnave/coderipper/.github/workflows/portfolio.yml@dc45e3632ab9f471292458e5ccba5f375084a70a # coderipper commit dc45e36
