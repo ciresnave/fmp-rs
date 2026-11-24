@@ -232,6 +232,9 @@ impl Transcripts {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::{json, Value};
+    use wiremock::matchers::{method, path, query_param};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     fn create_test_client() -> FmpClient {
         FmpClient::builder().api_key("test_key").build().unwrap()
@@ -244,123 +247,113 @@ mod tests {
         // Test passes if no panic occurs
     }
 
+    /// All bodies below are SYNTHETIC (not recordings): field names from models/transcripts.rs.
+    async fn serve(p: &str, params: &[(&str, &str)], body: Value) -> (MockServer, FmpClient) {
+        let server = MockServer::start().await;
+        let mut m = Mock::given(method("GET")).and(path(p));
+        for (k, v) in params {
+            m = m.and(query_param(*k, *v));
+        }
+        m.and(query_param("apikey", "test_key"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(body))
+            .expect(1)
+            .mount(&server)
+            .await;
+        let client = FmpClient::builder()
+            .api_key("test_key")
+            .base_url(server.uri())
+            .build()
+            .unwrap();
+        (server, client)
+    }
+
     #[tokio::test]
-    #[ignore] // Requires API key
     async fn test_get_transcript_list() {
-        let client = FmpClient::new().unwrap();
-        let result = client
-            .transcripts()
-            .get_transcript_list("AAPL", Some(2024))
-            .await;
-        assert!(result.is_ok());
-
-        let transcripts = result.unwrap();
-        if !transcripts.is_empty() {
-            let first_transcript = &transcripts[0];
-            assert!(first_transcript.symbol.is_some());
-            assert!(first_transcript.quarter.is_some() || first_transcript.year.is_some());
-            println!("Found {} transcript summaries for AAPL", transcripts.len());
-        }
+        let (_s, client) = serve(
+            "/earning_call_transcript/AAPL",
+            &[("year", "2024")],
+            json!([{"symbol": "AAPL", "quarter": "Q1", "year": 2024, "date": "2024-02-01"}]),
+        )
+        .await;
+        let t = client.transcripts().get_transcript_list("AAPL", Some(2024)).await.unwrap();
+        assert_eq!(t.len(), 1);
+        assert_eq!(t[0].symbol.as_deref(), Some("AAPL"));
+        assert_eq!(t[0].year, Some(2024));
     }
 
     #[tokio::test]
-    #[ignore] // Requires API key
     async fn test_get_transcript_list_no_year() {
-        let client = FmpClient::new().unwrap();
-        let result = client.transcripts().get_transcript_list("AAPL", None).await;
-        assert!(result.is_ok());
-
-        let transcripts = result.unwrap();
-        println!(
-            "Found {} total transcript summaries for AAPL",
-            transcripts.len()
-        );
+        let (_s, client) = serve(
+            "/earning_call_transcript/AAPL",
+            &[],
+            json!([{"symbol": "AAPL", "quarter": "Q4", "year": 2023}]),
+        )
+        .await;
+        let t = client.transcripts().get_transcript_list("AAPL", None).await.unwrap();
+        assert_eq!(t.len(), 1);
     }
 
     #[tokio::test]
-    #[ignore] // Requires API key
     async fn test_get_earnings_transcript() {
-        let client = FmpClient::new().unwrap();
-        let result = client
-            .transcripts()
-            .get_earnings_transcript("AAPL", 2023, 4)
-            .await;
-        assert!(result.is_ok());
-
-        let transcripts = result.unwrap();
-        if let Some(transcript) = transcripts.first() {
-            assert_eq!(transcript.symbol.as_deref(), Some("AAPL"));
-            assert_eq!(transcript.year, Some(2023));
-
-            if let Some(content) = &transcript.content {
-                assert!(!content.is_empty());
-                println!("Transcript content length: {} characters", content.len());
-            }
-        }
+        let (_s, client) = serve(
+            "/earning_call_transcript/AAPL",
+            &[("year", "2023"), ("quarter", "4")],
+            json!([{"symbol": "AAPL", "year": 2023, "quarter": "Q4", "content": "Thank you"}]),
+        )
+        .await;
+        let t = client.transcripts().get_earnings_transcript("AAPL", 2023, 4).await.unwrap();
+        assert_eq!(t[0].symbol.as_deref(), Some("AAPL"));
+        assert_eq!(t[0].year, Some(2023));
+        assert_eq!(t[0].content.as_deref(), Some("Thank you"));
     }
 
     #[tokio::test]
-    #[ignore] // Requires API key
     async fn test_get_press_releases() {
-        let client = FmpClient::new().unwrap();
-        let result = client
-            .transcripts()
-            .get_press_releases("AAPL", Some(10))
-            .await;
-        assert!(result.is_ok());
-
-        let releases = result.unwrap();
-        if !releases.is_empty() {
-            let first_release = &releases[0];
-            assert!(first_release.symbol.is_some() || first_release.company_name.is_some());
-            assert!(first_release.title.is_some());
-            assert!(first_release.date.is_some());
-            println!("Found {} press releases for AAPL", releases.len());
-        }
+        let (_s, client) = serve(
+            "/press-releases/AAPL",
+            &[("limit", "10")],
+            json!([{"symbol": "AAPL", "title": "Results", "date": "2024-02-01"}]),
+        )
+        .await;
+        let r = client.transcripts().get_press_releases("AAPL", Some(10)).await.unwrap();
+        assert_eq!(r[0].title.as_deref(), Some("Results"));
+        assert!(r[0].date.is_some());
     }
 
     #[tokio::test]
-    #[ignore] // Requires API key
     async fn test_get_press_releases_no_limit() {
-        let client = FmpClient::new().unwrap();
-        let result = client.transcripts().get_press_releases("MSFT", None).await;
-        assert!(result.is_ok());
-
-        let releases = result.unwrap();
-        println!("Found {} total press releases for MSFT", releases.len());
+        let (_s, client) = serve(
+            "/press-releases/MSFT",
+            &[],
+            json!([{"symbol": "MSFT", "title": "Update"}]),
+        )
+        .await;
+        let r = client.transcripts().get_press_releases("MSFT", None).await.unwrap();
+        assert_eq!(r.len(), 1);
     }
 
     #[tokio::test]
-    #[ignore] // Requires API key
     async fn test_get_conference_schedule() {
-        let client = FmpClient::new().unwrap();
-        let result = client
+        let (_s, client) = serve(
+            "/earning_calendar",
+            &[("from", "2024-01-01"), ("to", "2024-01-31")],
+            json!([{"symbol": "AAPL", "dateTime": "2024-01-25 17:00:00"}]),
+        )
+        .await;
+        let c = client
             .transcripts()
             .get_conference_schedule(Some("2024-01-01"), Some("2024-01-31"))
-            .await;
-        assert!(result.is_ok());
-
-        let calls = result.unwrap();
-        if !calls.is_empty() {
-            let first_call = &calls[0];
-            assert!(first_call.symbol.is_some());
-            assert!(first_call.date_time.is_some() || first_call.date_time.is_some());
-            println!("Found {} conference calls in January 2024", calls.len());
-        }
+            .await
+            .unwrap();
+        assert_eq!(c[0].symbol.as_deref(), Some("AAPL"));
+        assert!(c[0].date_time.is_some());
     }
 
     #[tokio::test]
-    #[ignore] // Requires API key
     async fn test_get_conference_schedule_no_dates() {
-        let client = FmpClient::new().unwrap();
-        let result = client
-            .transcripts()
-            .get_conference_schedule(None, None)
-            .await;
-        assert!(result.is_ok());
-
-        let calls = result.unwrap();
-        println!("Found {} total upcoming conference calls", calls.len());
+        let (_s, client) = serve("/earning_calendar", &[], json!([])).await;
+        let c = client.transcripts().get_conference_schedule(None, None).await.unwrap();
+        assert!(c.is_empty());
     }
 
     #[test]
