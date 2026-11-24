@@ -5,6 +5,14 @@ all-features = true
 
 [advisories]
 version = 2
+# RUSTSEC-2026-0543 (chrono 0.4.45 unmaintained, "No safe upgrade is available"): a maintenance
+# advisory, not a vulnerability; chrono is a direct dependency used for timestamps. EXPIRES 2026-12-17
+# (30 days; PM portfolio ruling A, via pm-platform 2026-11-23): re-check then; do not extend without a
+# new decision. Owner: fmp-rs lane. Exit: the ROADMAP row "Leave chrono" (move to jiff or time); remove
+# this entry when chrono is out of Cargo.lock.
+ignore = [
+    { id = "RUSTSEC-2026-0543", reason = "chrono unmaintained, no safe upgrade; maintenance advisory, not a vulnerability; expires 2026-12-17; exit = ROADMAP row to leave chrono" },
+]
 
 [licenses]
 version = 2
