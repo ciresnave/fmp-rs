@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.3.1] - 2026-11-24 (allocated by pm-assist)
+- Pin the CodeRipper portfolio caller at dc45e36; `url` 2.5.8 -> 2.5.9 in Cargo.lock (RUSTSEC-2026-0592); LICENSE-APACHE restored to the full Apache-2.0 text (11358 B).
+- `deny.toml`: ignore RUSTSEC-2026-0543 (chrono unmaintained, no safe upgrade) until 2026-12-17; ROADMAP.md row "Leave chrono" is the exit.
+
 ## [0.3.0] - 2026-10-28
 
 Breaking (pre-1.0). Moves the legacy `/api/v3`/`/api/v4` endpoints (all HTTP 403 live) to `/stable`, from the `stable_probe` run (free-tier key).
